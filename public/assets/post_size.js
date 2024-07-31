@@ -1,4 +1,4 @@
-export default function postSize() {
+export default function postSize(text) {
 	text = text.split(' ')
 	let res = []
 	for (let i = 0; i < text.length; i++) {
