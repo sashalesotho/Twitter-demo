@@ -1,10 +1,10 @@
 export default function postSize(text) {
-	text = text.split(' ')
-	let res = []
-	for (let i = 0; i < text.length; i++) {
-		if (!text[i].startsWith('http:') && !text[i].startsWith('https:') && !text[i].startsWith('www.') && !text[i].includes('.com') && !text[i].includes('.ru') && !text[i].includes('.org') && !text[i].includes('.net')) {
-			res.push(text[i])
-		}
-	}
-	return res.join(' ').length;
+  const textArr = text.split(' ');
+  const res = [];
+  for (let i = 0; i < textArr.length; i += 1) {
+    if (!textArr[i].startsWith('http:') && !textArr[i].startsWith('https:') && !textArr[i].startsWith('www.') && !textArr[i].includes('.com') && !textArr[i].includes('.ru') && !textArr[i].includes('.org') && !textArr[i].includes('.net')) {
+      res.push(textArr[i]);
+    }
+  }
+  return res.join(' ').length;
 }
