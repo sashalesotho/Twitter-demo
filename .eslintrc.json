@@ -1,0 +1,13 @@
+{
+	"extends": "airbnb-base",
+	"env": {
+	  "node": true,
+	  "es6": true
+	},
+	"rules": {
+	  "import/extensions": ["error", "ignorePackages", {"js": "always"}],
+	  "prefer-arrow-callback": 0,
+	  "mocha/prefer-arrow-callback": 2,
+	  "linebreak-style": 0
+	}
+ }
