@@ -8,6 +8,7 @@
 	  "import/extensions": ["error", "ignorePackages", {"js": "always"}],
 	  "prefer-arrow-callback": 0,
 	  "mocha/prefer-arrow-callback": 0,
-	  "linebreak-style": 0
+	  "linebreak-style": 0,
+	  "no-tabs": 0
 	}
  }
