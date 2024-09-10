@@ -202,3 +202,103 @@ body {
 .stats__item p {
   padding-left: 12px;
 }
+
+.hidden {
+  display: none;
+}
+
+.modal {
+  position: sticky;
+  color: #555555;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: #ffffff;
+  transition: 3s ease;
+  border-radius: 10px 10px 0 0;
+  bottom: 0;
+  padding: 16px;
+}
+
+.handler {
+  width: 50px;
+  height: 4px;
+  background-color: #abacb1;
+  border-radius: 10px;
+  margin: 0 auto;
+}
+
+.modal__header {
+  text-align: left;
+  color: #1d1e22;
+  font-size: 24px;
+  font-weight: 800;
+  padding: 32px 0 23px 0;
+}
+
+.registration__form {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.registration__input {
+  height: 52px;
+  border-radius: 10px;
+  margin: 24px 15px 0 15px;
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #dfdfdf;
+  border-radius: 10px;
+  margin: 0 auto;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.registration__input::placeholder {
+  color: #b1b1b1;
+}
+
+.modal__input {
+  position: relative;
+  color: #555555;
+  margin-bottom: 16px;
+}
+
+.modal__label {
+  display: none;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  color: #b1b1b1;
+}
+
+.registration__input:focus ~ .modal__label {
+  display: block;
+  transform: translateY(-0.65rem) translateX(0.15rem);
+  color: #b1b1b1;
+  font-size: 9px;
+  font-weight: 400;
+}
+
+.registration__input:invalid {
+  background-color: #ffdeec;
+  border: 1px solid #ff97c3;
+}
+
+.input__message {
+  display: none;
+
+  font-size: 9px;
+  font-weight: 400;
+  color: #dc3545;
+  text-align: left;
+}
+
+.registration__input:invalid ~ .input__message {
+  display: block;
+  padding: 0 16px;
+}
