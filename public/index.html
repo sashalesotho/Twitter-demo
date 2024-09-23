@@ -203,7 +203,7 @@
 
       <div class="modal hidden" id="reg-modal">
         <div class="handler" id="reg-swipe"></div>
-        <form class="registration__form" action="">
+        <form novalidate class="registration__form" action="" id="reg-form">
           <div class="modal__header">Регистрация</div>
           <div class="modal__input">
             <input
@@ -216,7 +216,6 @@
             <label for="reg-email" class="modal__label"
               >Электронная почта</label
             >
-            <div class="input__message">Адрес не валиден</div>
           </div>
           <div class="modal__input">
             <input
@@ -226,7 +225,6 @@
               id="reg-password"
             />
             <label for="reg-password" class="modal__label">Пароль</label>
-            <div class="input__message">Пароль не верный</div>
           </div>
           <div class="modal__input">
             <input
@@ -238,10 +236,11 @@
             <label for="reg-password-again" class="modal__label">
               Подтверждение пароля
             </label>
-            <div class="input__message">Пароль не верный</div>
           </div>
 
-          <button class="registration__button">Зарегестрироваться</button>
+          <button class="registration__button" id="reg-button">
+            Зарегестрироваться
+          </button>
         </form>
       </div>
 
@@ -279,7 +278,7 @@
       </div>
     </div>
 
-    <script src="./swiped-events.js" type="module"></script>
-    <script src="./index.js" type="module"></script>
+    <script crossorigin="" src="./swiped-events.js" type="module"></script>
+    <script crossorigin="" src="./index.js" type="module"></script>
   </body>
 </html>
