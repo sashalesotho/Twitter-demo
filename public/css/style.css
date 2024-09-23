@@ -284,7 +284,7 @@ body {
   font-weight: 400;
 }
 
-.registration__input:invalid {
+.registration__input.invalid {
   background-color: #ffdeec;
   border: 1px solid #ff97c3;
 }
@@ -298,7 +298,17 @@ body {
   text-align: left;
 }
 
-.registration__input:invalid ~ .input__message {
+.registration__input.invalid ~ .input__message {
   display: block;
   padding: 0 16px;
+}
+
+.error .registration__input {
+  border-color: red;
+}
+.error-label {
+  display: block;
+  margin-bottom: 10px;
+  color: red;
+  text-align: left;
 }
