@@ -1,0 +1,57 @@
+export default async function addAPI() {
+  const resStatistic = await fetch('https://burtovoy.github.io/statistic.json');
+  const statisticJSON = await resStatistic.json();
+  const statisticObj = statisticJSON.statistic;
+
+  document.querySelector('#users-numb').innerHTML = statisticObj.usersRegistr;
+  document.querySelector('#messages-numb').innerHTML = statisticObj.writMessages;
+  document.querySelector('#today-messages').innerHTML = statisticObj.writToday;
+
+  const resMessages = await fetch('https://burtovoy.github.io/messages.json');
+  const messagesJSON = await resMessages.json();
+  const messagesArr = messagesJSON.messages;
+
+  const resPictures = await fetch('https://burtovoy.github.io/pictures.json');
+  const picturesJSON = await resPictures.json();
+  const picturesArr = picturesJSON.pictures;
+
+  let key;
+  /* eslint-disable-next-line */
+  for (key in messagesArr) {
+    document.querySelector('#posts-list').innerHTML
+    += `<li class="post" id=${messagesArr[key].id}>
+            <div class="post__avatar">
+              <img src=${picturesArr[key].url} alt="аватар" />
+            </div>
+            <div class="post__body">
+              <div class="post__header">
+                <div class="user">
+                  <p class="user__name">${messagesArr[key].name}</p>
+                  <p class="user__nickname">${messagesArr[key].mail}</p>
+                </div>
+                <div class="post__time">
+                  <p>${messagesArr[key].date}</p>
+                </div>
+              </div>
+              <div class="post__message">
+                ${messagesArr[key].message}
+              </div>
+              <div class="stats">
+                <div class="stats__item">
+                  <img src="images/reply.svg" alt="ответить" />
+                  <p>${messagesArr[key].quantityReposts}</p>
+                </div>
+                <div class="stats__item">
+                  <img src="images/heart.svg" alt="сердце" />
+                  <p>${messagesArr[key].quantityLike}</p>
+                </div>
+                <div class="stats__item">
+                  <img src="images/export.svg" alt="поделиться" />
+                  <p>${messagesArr[key].quantityShare}</p>
+                </div>
+              </div>
+            </div>
+          </li>
+    `;
+  }
+}
