@@ -17,41 +17,76 @@ export default async function addAPI() {
 
   let key;
   /* eslint-disable-next-line */
-  for (key in messagesArr) {
-    document.querySelector('#posts-list').innerHTML
-    += `<li class="post" id=${messagesArr[key].id}>
-            <div class="post__avatar">
-              <img src=${picturesArr[key].url} alt="аватар" />
-            </div>
-            <div class="post__body">
-              <div class="post__header">
-                <div class="user">
-                  <p class="user__name">${messagesArr[key].name}</p>
-                  <p class="user__nickname">${messagesArr[key].mail}</p>
-                </div>
-                <div class="post__time">
-                  <p>${messagesArr[key].date}</p>
-                </div>
-              </div>
-              <div class="post__message">
-                ${messagesArr[key].message}
-              </div>
-              <div class="stats">
-                <div class="stats__item">
-                  <img src="images/reply.svg" alt="ответить" />
-                  <p>${messagesArr[key].quantityReposts}</p>
-                </div>
-                <div class="stats__item">
-                  <img src="images/heart.svg" alt="сердце" />
-                  <p>${messagesArr[key].quantityLike}</p>
-                </div>
-                <div class="stats__item">
-                  <img src="images/export.svg" alt="поделиться" />
-                  <p>${messagesArr[key].quantityShare}</p>
-                </div>
-              </div>
-            </div>
-          </li>
-    `;
+	for (key in messagesArr) {
+    if (!messagesArr[key].img_message) {
+      document.querySelector('#posts-list').innerHTML
+    += `<li class="post" id="${messagesArr[key].id}">
+    <div class="post__avatar">
+      <img src="${picturesArr[key].url}" alt="аватар" />
+    </div>
+    <div class="post__body">
+      <div class="post__header">
+        <div class="user">
+        <p class="user__name">${messagesArr[key].name}</p>
+        <p class="user__nickname">${messagesArr[key].mail}</p>
+        </div>
+        <div class="post__time">
+        <p>${messagesArr[key].date}</p>
+        </div>
+      </div>
+      <div class="post__message">${messagesArr[key].message}</div>
+      <div class="stats">
+       <div class="stats__item">
+        <img src="images/reply.svg" alt="ответить" />
+        <p>${messagesArr[key].quantityReposts}</p>
+       </div>
+       <div class="stats__item">
+        <img src="images/heart.svg" alt="сердце" />
+        <p>${messagesArr[key].quantityLike}</p>
+       </div>
+       <div class="stats__item">
+        <img src="images/export.svg" alt="поделиться" />
+        <p>${messagesArr[key].quantityShare}</p>
+       </div>
+      </div>
+    </div>
+   </li>`;
+    } else {
+      document.querySelector('#posts-list').innerHTML
+    += `<li class="post" id="${messagesArr[key].id}">
+    <div class="post__avatar">
+      <img src="${picturesArr[key].url}" alt="аватар" />
+    </div>
+    <div class="post__body">
+      <div class="post__header">
+       <div class="user">
+        <p class="user__name">${messagesArr[key].name}</p>
+        <p class="user__nickname">${messagesArr[key].mail}</p>
+       </div>
+       <div class="post__time">
+        <p>${messagesArr[key].date}</p>
+       </div>
+      </div>
+      <div class="post__message">${messagesArr[key].message}</div>
+      <div class="post__image">
+       <img src="${messagesArr[key].img_message}" alt="матч" />
+      </div>
+      <div class="stats">
+       <div class="stats__item">
+        <img src="images/reply.svg" alt="ответить" />
+        <p>${messagesArr[key].quantityReposts}</p>
+       </div>
+       <div class="stats__item">
+        <img src="images/heart.svg" alt="сердце" />
+        <p>${messagesArr[key].quantityLike}</p>
+       </div>
+       <div class="stats__item">
+        <img src="images/export.svg" alt="поделиться" />
+        <p>${messagesArr[key].quantityShare}</p>
+       </div>
+      </div>
+    </div>
+   </li>`;
+    }
   }
 }
