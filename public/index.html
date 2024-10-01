@@ -26,15 +26,15 @@
 
       <div class="statistics">
         <div class="statistics__item">
-          <div class="statistics__number">20</div>
+          <div class="statistics__number" id="users-numb"></div>
           <div class="statistics__text">Пользователей зарегистрировано</div>
         </div>
         <div class="statistics__item">
-          <div class="statistics__number">556</div>
+          <div class="statistics__number" id="messages-numb"></div>
           <div class="statistics__text">Сообщений написано</div>
         </div>
         <div class="statistics__item">
-          <div class="statistics__number">58</div>
+          <div class="statistics__number" id="today-messages"></div>
           <div class="statistics__text">Написано сегодня</div>
         </div>
       </div>
@@ -42,151 +42,7 @@
       <div class="posts">
         <div class="posts__header">Последние сообщения</div>
 
-        <ul class="posts__list">
-          <li class="post">
-            <div class="post__avatar">
-              <img src="images/vincent.png" alt="аватар" />
-            </div>
-            <div class="post__body">
-              <div class="post__header">
-                <div class="user">
-                  <p class="user__name">Винсет Вега</p>
-                  <p class="user__nickname">@roizmangbn</p>
-                </div>
-                <div class="post__time">
-                  <p>28 минут назад</p>
-                </div>
-              </div>
-              <div class="post__message">
-                У них там все немного не так. В смысле, у них там все точно так
-                же, как и здесь, только немного по-другому.
-              </div>
-              <div class="stats">
-                <div class="stats__item">
-                  <img src="images/reply.svg" alt="ответить" />
-                  <p>21</p>
-                </div>
-                <div class="stats__item">
-                  <img src="images/heart.svg" alt="сердце" />
-                  <p>23</p>
-                </div>
-                <div class="stats__item">
-                  <img src="images/export.svg" alt="поделиться" />
-                  <p>9</p>
-                </div>
-              </div>
-            </div>
-          </li>
-
-          <li class="post">
-            <div class="post__avatar">
-              <img src="images/elon.png" alt="аватар" />
-            </div>
-            <div class="post__body">
-              <div class="post__header">
-                <div class="user">
-                  <p class="user__name">Elon Musk</p>
-                  <p class="user__nickname">@elonmusk</p>
-                </div>
-                <div class="post__time">
-                  <p>12 часов назад</p>
-                </div>
-              </div>
-              <div class="post__message">
-                Has anyone seen Web3? I can't find it.
-              </div>
-              <div class="stats">
-                <div class="stats__item">
-                  <img src="images/reply.svg" alt="ответить" />
-                  <p>21</p>
-                </div>
-                <div class="stats__item">
-                  <img src="images/heart.svg" alt="сердце" />
-                  <p>23</p>
-                </div>
-                <div class="stats__item">
-                  <img src="images/export.svg" alt="поделиться" />
-                  <p>9</p>
-                </div>
-              </div>
-            </div>
-          </li>
-
-          <li class="post">
-            <div class="post__avatar">
-              <img src="images/alexander.png" alt="аватар" />
-            </div>
-            <div class="post__body">
-              <div class="post__header">
-                <div class="user">
-                  <p class="user__name">Александр</p>
-                  <p class="user__nickname">@sportsru</p>
-                </div>
-                <div class="post__time">
-                  <p>2 часа назад</p>
-                </div>
-              </div>
-              <div class="post__message">
-                Прикладываю фотки с последнего матча. С каждым днем играю все
-                лучше. Еще пару лет и можно на Олимпиаду ехать!
-              </div>
-              <div class="post__image">
-                <img src="images/play.png" alt="матч" />
-              </div>
-              <div class="stats">
-                <div class="stats__item">
-                  <img src="images/reply.svg" alt="ответить" />
-                  <p>21</p>
-                </div>
-                <div class="stats__item">
-                  <img src="images/heart.svg" alt="сердце" />
-                  <p>23</p>
-                </div>
-                <div class="stats__item">
-                  <img src="images/export.svg" alt="поделиться" />
-                  <p>9</p>
-                </div>
-              </div>
-            </div>
-          </li>
-
-          <li class="post">
-            <div class="post__avatar">
-              <img src="images/mia.png" alt="аватар" />
-            </div>
-            <div class="post__body">
-              <div class="post__header">
-                <div class="user">
-                  <p class="user__name">Мия Уоллес</p>
-                  <p class="user__nickname">@mia</p>
-                </div>
-                <div class="post__time">
-                  <p>1 день назад</p>
-                </div>
-              </div>
-              <div class="post__message">
-                Идут по улице три помидора: папа-помидор, мама-помидор и
-                ребенок-помидор. Ребенок-помидор начинает отставать.
-                Папа-помидор разозлился, подбегает к ребенку-помидору,
-                раздавливает всмятку... и говорит: «Догоняй, кетчуп!»
-              </div>
-              <div class="stats">
-                <div class="stats__item">
-                  <img src="images/reply.svg" alt="ответить" />
-                  <p>21</p>
-                </div>
-                <div class="stats__item">
-                  <img src="images/heart.svg" alt="сердце" />
-                  <p>23</p>
-                </div>
-                <div class="stats__item">
-                  <img src="images/export.svg" alt="поделиться" />
-                  <p>9</p>
-                </div>
-              </div>
-            </div>
-          </li>
-        </ul>
+        <ul class="posts__list" id="posts-list"></ul>
       </div>
 
       <div class="registration">

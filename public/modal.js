@@ -1,5 +1,4 @@
 export default function modalWindows() {
-  /* global document */
   const modalReg = document.querySelector('#reg-modal');
   const modalAuth = document.querySelector('#auth-modal');
   const regButton1 = document.querySelector('#reg1');
