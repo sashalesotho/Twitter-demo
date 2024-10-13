@@ -312,3 +312,38 @@ body {
   color: red;
   text-align: left;
 }
+/* ___________________ */
+
+
+.post-loader {
+  display: flex;
+  flex-direction: row;
+  border: 2px solid #e9e9e9;
+  border-radius: 5px;
+  padding: 16px;
+  margin: 5px;
+}
+
+.post__avatar-loader {
+  padding: 0 16px 16px 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: lightgray;
+}
+
+.post__body-loader {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.post__message-loader {
+  background-color: lightgray;
+  height: 12px;
+  margin: 3px 8px;
+  border-radius: 12px;
+}
+
+
+
