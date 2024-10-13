@@ -7,6 +7,13 @@ export default async function addAPI() {
   document.querySelector('#messages-numb').innerHTML = statisticObj.writMessages;
   document.querySelector('#today-messages').innerHTML = statisticObj.writToday;
 
+  const loader = document.querySelector('.posts__list-loader');
+  fetch('https://burtovoy.github.io/messages.json').then((res) => {
+    if (res.ok) {
+      loader.classList.add('hidden');
+    }
+  });
+
   const resMessages = await fetch('https://burtovoy.github.io/messages.json');
   const messagesJSON = await resMessages.json();
   const messagesArr = messagesJSON.messages;
@@ -16,6 +23,7 @@ export default async function addAPI() {
   const picturesArr = picturesJSON.pictures;
 
   let key;
+
   /* eslint-disable-next-line */
 	for (key in messagesArr) {
     if (!messagesArr[key].img_message) {
@@ -36,21 +44,21 @@ export default async function addAPI() {
       </div>
       <div class="post__message">${messagesArr[key].message}</div>
       <div class="stats">
-       <div class="stats__item">
+      <div class="stats__item">
         <img src="images/reply.svg" alt="ответить" />
         <p>${messagesArr[key].quantityReposts}</p>
-       </div>
-       <div class="stats__item">
+      </div>
+      <div class="stats__item">
         <img src="images/heart.svg" alt="сердце" />
         <p>${messagesArr[key].quantityLike}</p>
-       </div>
-       <div class="stats__item">
+      </div>
+      <div class="stats__item">
         <img src="images/export.svg" alt="поделиться" />
         <p>${messagesArr[key].quantityShare}</p>
-       </div>
+      </div>
       </div>
     </div>
-   </li>`;
+  </li>`;
     } else {
       document.querySelector('#posts-list').innerHTML
     += `<li class="post" id="${messagesArr[key].id}">
