@@ -1,3 +1,6 @@
+import convertTime from './assets/convert_time.js';
+import messageTimer from './message-timer.js';
+
 export default async function addAPI() {
   const resStatistic = await fetch('https://burtovoy.github.io/statistic.json');
   const statisticJSON = await resStatistic.json();
@@ -22,6 +25,8 @@ export default async function addAPI() {
   const picturesJSON = await resPictures.json();
   const picturesArr = picturesJSON.pictures;
 
+  let now;
+  setInterval(now = Date.now(), 60000);
   let key;
 
   /* eslint-disable-next-line */
@@ -39,7 +44,7 @@ export default async function addAPI() {
         <p class="user__nickname">${messagesArr[key].mail}</p>
         </div>
         <div class="post__time">
-        <p>${messagesArr[key].date}</p>
+        <p>${convertTime(messageTimer(messagesArr[key].date), now)}</p>
         </div>
       </div>
       <div class="post__message">${messagesArr[key].message}</div>
@@ -72,7 +77,7 @@ export default async function addAPI() {
         <p class="user__nickname">${messagesArr[key].mail}</p>
        </div>
        <div class="post__time">
-        <p>${messagesArr[key].date}</p>
+        <p>${convertTime(messageTimer(messagesArr[key].date), now)}</p>
        </div>
       </div>
       <div class="post__message">${messagesArr[key].message}</div>
