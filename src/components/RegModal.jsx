@@ -34,7 +34,11 @@ const RegModal = ({ active, setActive }) => {
     e.preventDefault();
     if (isValid(this) === true) {
       console.log(email, password, checkPassword);
+      setEmail('');
+      setPassword('');
+      setCheckPassword('');
     }
+    
   }
   useEffect(() => {
     swipe.current.addEventListener("swiped-down", () => {
