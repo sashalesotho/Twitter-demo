@@ -1,0 +1,137 @@
+.posts {
+    width: 100%;
+  }
+.posts__header {
+    font-weight: 800;
+    font-size: 24px;
+    text-align: left;
+    padding: 19px 16px;
+  }
+  .posts__list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    list-style: none;
+  }
+  
+  .post {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid #e9e9e9;
+    padding: 16px;
+  }
+  
+  .post:last-child {
+    border-bottom: none;
+  }
+  
+  .post__avatar {
+    padding: 0 16px 16px 0;
+  }
+  
+  .post__avatar img {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+  }
+  
+  .post__body {
+    display: flex;
+    flex-direction: column;
+    font-size: 16px;
+    flex-grow: 1;
+  }
+  
+  .post__header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .user {
+    font-size: 14px;
+    text-align: left;
+  }
+  
+  .user__name {
+    font-weight: bold;
+    padding: 3px 0;
+  }
+  
+  .user__nickname,
+  .post__time,
+  .stats__item {
+    color: #abacb1;
+  }
+  
+  .post__time {
+    font-size: 10px;
+    text-align: right;
+    width: 52px;
+  }
+  
+  .post__message {
+    text-align: left;
+    padding: 7px 7px 7px 0;
+  }
+  .post__image {
+    padding: 10px 0;
+  }
+  .post__image img {
+    width: 100%;
+    border-radius: 10px;
+  }
+  
+  .stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px 55px 10px 0;
+  }
+  
+  .stats__item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+  }
+  
+  .stats__item p {
+    padding-left: 12px;
+  }
+  
+  .hidden {
+    display: none;
+  }
+
+  .post-loader {
+    display: flex;
+    flex-direction: row;
+    border: 2px solid #e9e9e9;
+    border-radius: 5px;
+    padding: 16px;
+    margin: 5px;
+  }
+  
+  .post__avatar-loader {
+    padding: 0 16px 16px 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background-color: lightgray;
+  }
+  
+  .post__body-loader {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  
+  .post__message-loader {
+    background-color: lightgray;
+    height: 12px;
+    margin: 3px 8px;
+    border-radius: 12px;
+  }
+  
