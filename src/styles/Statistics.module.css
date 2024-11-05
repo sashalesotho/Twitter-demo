@@ -1,0 +1,27 @@
+.image {
+    width: 100%;
+  }
+  
+  .statistics {
+    background-color: #0057ff;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 10px 80px;
+  }
+  
+  .statistics__item {
+    padding: 20px 30px;
+  }
+  .statistics__number {
+    font-size: 48px;
+    font-weight: 300;
+  }
+  .statistics__text {
+    font-size: 18px;
+    font-weight: 400;
+    text-align: center;
+    padding: 10px 20px;
+  }
