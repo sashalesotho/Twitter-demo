@@ -4,6 +4,8 @@ import messageTimer from "../../public/message-timer";
 import styles from "../styles/MessagesList.module.css";
 import MessageLoader from "./MessageLoader";
 import Message from "./Message";
+import Blogers from "./Blogers";
+import Topics from "./Topics";
 
 const MessagesList = () => {
   const [messagesArr, setMessages] = useState([]);
@@ -56,9 +58,11 @@ const MessagesList = () => {
   } 
   );
   return (
-    <div className={styles.posts}>
+    <div className={styles.container}>
       <div className={styles["posts__header"]}>Последние сообщения</div>
-      {isLoading ? (
+      <div className={styles.posts}>
+        <div className={styles['left-desktop-body']}>
+        {isLoading ? (
         <>
           <MessageLoader />
           <MessageLoader />
@@ -67,6 +71,15 @@ const MessagesList = () => {
       ) : (
         messages
       )}
+        </div>
+      
+      <div className={['right-desktop-body']}>
+      <Topics />
+      <Blogers />
+      </div>
+      </div>
+      
+
     </div>
   );
 };

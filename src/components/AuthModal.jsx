@@ -9,7 +9,7 @@ const AuthModal = ({active, setActive}) => {
   })
     return (
         <div className={active ? styles.modal : styles.hidden} >
-        <div className={styles.handler} ref={swipe}></div>
+        <div className={styles.handler} ref={swipe} onClick={() => setActive(false)} ></div>
         <form noValidate className={styles['registration__form']} action="">
           <div className={styles["modal__header"]}>Авторизация</div>
           <div className={styles["modal__input"]}>

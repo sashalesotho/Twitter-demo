@@ -1,0 +1,62 @@
+.container {
+    display: none;
+}
+
+@media screen and (width > 1279px) {
+    .container {
+        width: 312px;
+        display: flex;
+        flex-direction: column;
+        background-color: #fff;
+        border-radius: 10px;
+        margin: 16px 0 0 16px;
+        padding: 10px;
+    }
+    h1 {
+        font-weight: 700;
+        font-size: 18px;
+        text-align: left;
+        padding: 14px 0;
+    }
+    .bloger {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        height: 64px;
+        
+    }
+
+    .avatar {
+        width: 48px;
+        height: 48px;
+    }
+    .title {
+        text-align: left;
+        width: 113px;
+    }
+    .name {
+        font-weight: 700;
+        font-size: 16px;
+    }
+    .nickname {
+        font-size: 12px;
+        font-weight: 400;
+        color:#ABACB1;
+        ;
+    }
+    .read-button {
+        width: 69px;
+        height: 24px;
+        color: #0057FF;
+        border: #0057FF solid 1px;
+        border-radius: 5px;
+        font-size: 10px;
+        font-weight: 500;
+        padding: 4px;
+        background-color: #fff;
+    }
+
+    
+}

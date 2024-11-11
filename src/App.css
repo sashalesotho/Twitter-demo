@@ -39,3 +39,41 @@
     background-color: #ffffff;
     width: 100%;
   }
+
+  .right-desktop-header {
+    width: 100%;
+    padding: 0px;
+  }
+
+  @media screen and (width > 1279px) {
+    #root {
+      margin: 0;
+    }
+
+    .container {
+      width: 1280px;
+      background-color:#F4F5F6;
+      
+    }
+    .header {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      background-color: #fff;
+      height: 640px;
+    }
+    .desktop-body {
+      display: flex;
+      flex-direction: row;
+    }
+    .right-desktop-header {
+      width: 640px;
+    }
+    .left-desktop-header {
+      width: 640px;
+      padding: 64px;
+    }
+    
+
+  }
+  
