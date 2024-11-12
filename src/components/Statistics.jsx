@@ -19,7 +19,6 @@ const Statistics = () => {
 
     return(
         <>
-        <img className = {styles.image} src="images/people.png" alt="люди" />
         <div className = {styles.statistics}>
         <div className = {styles.statistics__item}>
           <div className = {styles.statistics__number}>{resStatistic.usersRegistr}</div>

@@ -25,3 +25,18 @@
     text-align: center;
     padding: 10px 20px;
   }
+
+  @media screen and (width > 1279px) {
+    .statistics {
+      width: 960px;
+      flex-direction: row;
+      border-radius: 0 0 10px 10px;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+  }

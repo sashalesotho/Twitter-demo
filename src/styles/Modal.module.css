@@ -130,4 +130,29 @@
     background-color: #0057ff;
     font-weight: 700;
   }
+
+  @media screen and (width > 1279px) {
+    .modal {
+      width: 362px;
+      height: 376px;
+      position: fixed;
+      top: 355px;
+      left: 626px;
+      margin: 0 auto;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+    .handler {
+      height: 20px;
+      width: 20px;
+      background: url(../../public/images/Vector.svg);
+      background-repeat: no-repeat;
+      margin: 5px 90%;
+      border-radius: 0;
+    }
+    .modal__header {
+      padding: 13px 0 13px 0;
+    }
+   
+  }
   
