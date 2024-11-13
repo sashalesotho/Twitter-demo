@@ -9,7 +9,7 @@ const Blogers = () => {
             <div className={styles.blogers}>
                 <div className={styles.bloger}>
                 <div className={styles.avatar}>
-                <img src="../../public/images/habr.png" alt="" />
+                <img src="../images/habr.png" alt="" />
                 </div>
                 <div className={styles.title}>
                     <div className={styles.name}>Хабр Научпоп</div>
@@ -19,7 +19,7 @@ const Blogers = () => {
                 </div>
                 <div className={styles.bloger}>
                 <div className={styles.avatar}>
-                <img src="../../public/images/m.png" alt="" />
+                <img src="../images/m.png" alt="" />
                 </div>
                 <div className={styles.title}>
                     <div className={styles.name}>Матч ТВ</div>
@@ -29,7 +29,7 @@ const Blogers = () => {
                 </div>
                 <div className={styles.bloger}>
                 <div className={styles.avatar}>
-                <img src="../../public/images/pm.png" alt="" />
+                <img src="../images/pm.png" alt="" />
                 </div>
                 <div className={styles.title}>
                     <div className={styles.name}>Популярная механика</div>
