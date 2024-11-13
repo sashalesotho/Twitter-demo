@@ -47,7 +47,7 @@ const RegModal = ({ active, setActive }) => {
   });
   return (
     <div className={active ? styles.modal : styles.hidden}>
-      <div className={styles.handler} ref={swipe}></div>
+      <div className={styles.handler} ref={swipe} onClick={() => setActive(false)}></div>
       <form
         noValidate
         className={styles["registration__form"]}

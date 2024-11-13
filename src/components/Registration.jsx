@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import styles from '../styles/Registration.module.css';
+import styles from '../styles/Registration-1.module.css';
 import RegModal from './RegModal';
 import AuthModal from './AuthModal';
 const Registration = () => {
