@@ -1,4 +1,5 @@
 import express from 'express';
+import pg from 'pg';
 
 const app = express()
 const port = 3000
@@ -9,7 +10,7 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
-const { Client } = require('pg');
+const { Client } = pg;
 
 const client = new Client({
   host: 'dpg-cstiij0gph6c739ekvhg-a',
