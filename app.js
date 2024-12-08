@@ -10,6 +10,10 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
+app.length('/posts.json', async (req, res) => {
+  
+})
+
 const { Client } = pg;
 
 const client = new Client({
