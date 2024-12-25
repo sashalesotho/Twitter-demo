@@ -19,9 +19,14 @@ client.connect()
 
 app.use(express.static('public'));
 
-app.get('/posts', async () => {
-  const query = await client.query('SELECT * FROM posts');
-  console.log(query);
+app.get('/posts', async (req, res) => {
+  try {
+    const query = await client.query('SELECT * FROM posts');
+    return res.json(query.rows);
+  } catch (error) {
+    console.error('error select', error);
+    return res.status(500).send('server error');
+  }
 });
 
 app.post('/posts', async (req, res) => {
