@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import replaceLinks from '../public/assets/replace_links.js';
+import replaceLinks from '../assets/replace_links.js';
 /* global describe, it */
 describe('Функция проверки замены ссылок', function () {
   it('одна ссылка', function () {

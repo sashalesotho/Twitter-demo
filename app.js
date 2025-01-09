@@ -1,5 +1,6 @@
 import express from 'express';
 import pg from 'pg';
+import bcrypt from 'bcrypt';
 
 const app = express();
 const port = 3000;
@@ -127,6 +128,26 @@ app.put('/posts/:id.json', async (req, res) => {
   } catch (error) {
     console.error('error update', error);
     return res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+app.post('/clreateUser', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'email and password are required' });
+  }
+  try {
+    const existUser = await client.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (existUser.rows.length > 0) {
+      return res.status(400).json({ error: 'user already exists' });
+    }
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    await client.query('INSERT INTO users(email, password) VALUES($1, $2)', [email, hashPassword]);
+    return res.status(200).json({ message: 'user created successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'db error' });
   }
 });
 

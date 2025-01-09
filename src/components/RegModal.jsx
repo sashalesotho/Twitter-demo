@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import validateEmail from "../../public/assets/is_valid_email";
+import validateEmail from "../../assets/is_valid_email";
 import styles from "../styles/Modal.module.css";
+import { response } from "express";
 const RegModal = ({ active, setActive }) => {
   const swipe = useRef();
   const [emailError, setEmailError] = useState("");
@@ -34,12 +35,35 @@ const RegModal = ({ active, setActive }) => {
     e.preventDefault();
     if (isValid(this) === true) {
       console.log(email, password, checkPassword);
+      try {
+        fetch('/createUser', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({email, password}),
+        })
+        .then((response) => {
+        if (!response.ok) {
+          return response.json().then((error) => {
+            throw new Error(error || 'registration error');
+          });
+        }
+        return response.json();
+      })
+      .catch ((error) => {
+        console.log(error);
+      });
+      }
+      catch (error) {
+      console.log(error);
+    }
       setEmail('');
       setPassword('');
       setCheckPassword('');
-    }
-    
-  }
+  };
+}
+
   useEffect(() => {
     swipe.current.addEventListener("swiped-down", () => {
       setActive(false);

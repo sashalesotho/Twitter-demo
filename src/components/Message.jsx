@@ -1,5 +1,5 @@
 import styles from '../styles/MessagesList.module.css';
-import convertTime from '../../public/assets/convert_time';
+import convertTime from '../../assets/convert_time';
 import messageTimer from '../../public/message-timer';
 const Message = ({id, picUrl, name, mail, date, message, quantityReposts, quantityLike, quantityShare}) => {
   let now;

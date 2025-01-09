@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import validateEmail from '../public/assets/is_valid_email.js';
+import validateEmail from '../assets/is_valid_email.js';
 /* global describe, it */
 describe('Функция проверки валидности email-адреса', function () {
   it('валидный email-адрес', function () {

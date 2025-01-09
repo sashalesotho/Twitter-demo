@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import convertTime from '../public/assets/convert_time.js';
+import convertTime from '../assets/convert_time.js';
 /* global describe, it */
 describe('Функция проверки расчета времени, прошедшего с момента публикации поста', function () {
   it('разница – 60 минут', function () {
