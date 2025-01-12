@@ -1,4 +1,4 @@
-import validateEmail from './assets/is_valid_email.js';
+import validateEmail from '../assets/is_valid_email.js';
 
 export default function registrationFormValidation() {
   const regForm = document.querySelector('#reg-form');

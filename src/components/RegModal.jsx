@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import validateEmail from "../../public/assets/is_valid_email";
+import validateEmail from "../../assets/is_valid_email";
 import styles from "../styles/Modal.module.css";
 const RegModal = ({ active, setActive }) => {
   const swipe = useRef();
@@ -8,6 +8,8 @@ const RegModal = ({ active, setActive }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
+  const [message, setMessage] = useState("");
+
   const isValid = () => {
     let result = true;
     setEmailError("");
@@ -30,16 +32,38 @@ const RegModal = ({ active, setActive }) => {
     }
     return result;
   };
-  function submitHandler(e) {
+  const submitHandler = async (e) => {
     e.preventDefault();
-    if (isValid(this) === true) {
-      console.log(email, password, checkPassword);
       setEmail('');
       setPassword('');
       setCheckPassword('');
-    }
-    
-  }
+      setMessage('');
+    if (isValid(this) === true) {
+      console.log(email, password, checkPassword);
+      try {
+        const res = await fetch('/createUser', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({email: email, password: password}),
+        });
+
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          setEmail(errorData.message || 'registration error')
+        } else {
+          setMessage('registration was successful')
+        }
+      }
+      catch (err) {
+        setEmailError('network error')
+      }
+      };
+     
+  };
+
   useEffect(() => {
     swipe.current.addEventListener("swiped-down", () => {
       setActive(false);
@@ -104,9 +128,10 @@ const RegModal = ({ active, setActive }) => {
             <div className={styles["error-label"]}>{passwordError}</div>
           )}
         </div>
+        <div>{message && <p>{message}</p>}</div>
 
         <button className={styles["registration__button"]}>
-          Зарегестрироваться
+          Зарегистрироваться
         </button>
       </form>
     </div>
