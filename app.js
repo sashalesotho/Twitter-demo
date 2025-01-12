@@ -1,7 +1,7 @@
 import express from 'express';
 import pg from 'pg';
 import bcrypt from 'bcrypt';
-
+// import bodyParser from 'body-parser';
 const app = express();
 const port = 3000;
 const { Client } = pg;
@@ -13,6 +13,7 @@ const client = new Client({
   database: 'twitter_ir0y',
   ssl: true,
 });
+// app.use(bodyParser.json());
 
 client.connect()
   .then(() => console.log('Connected to database'))
@@ -131,7 +132,7 @@ app.put('/posts/:id.json', async (req, res) => {
   }
 });
 
-app.post('/clreateUser', async (req, res) => {
+app.post('/createUser', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ error: 'email and password are required' });
@@ -143,7 +144,8 @@ app.post('/clreateUser', async (req, res) => {
     }
     const hashPassword = await bcrypt.hash(password, 10);
 
-    await client.query('INSERT INTO users(email, password) VALUES($1, $2)', [email, hashPassword]);
+    const createUser = await client.query('INSERT INTO users(email, password) VALUES($1, $2) RETURNING *', [email, hashPassword]);
+    console.log('user created', createUser.rows);
     return res.status(200).json({ message: 'user created successfully' });
   } catch (error) {
     console.error(error);
