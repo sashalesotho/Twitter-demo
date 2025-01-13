@@ -1,7 +1,7 @@
 import express from 'express';
 import pg from 'pg';
 import bcrypt from 'bcrypt';
-// import bodyParser from 'body-parser';
+
 const app = express();
 const port = 3000;
 const { Client } = pg;
@@ -13,13 +13,13 @@ const client = new Client({
   database: 'twitter_ir0y',
   ssl: true,
 });
-// app.use(bodyParser.json());
 
 client.connect()
   .then(() => console.log('Connected to database'))
   .catch((err) => console.error('Connection error', err.stack));
 
 app.use(express.static('public'));
+app.use(express.json());
 
 app.get('/posts', async (req, res) => {
   try {
@@ -32,6 +32,7 @@ app.get('/posts', async (req, res) => {
 });
 
 app.post('/posts', async (req, res) => {
+  console.log(req.body);
   try {
     const {
       id,
@@ -148,8 +149,8 @@ app.post('/createUser', async (req, res) => {
     console.log('user created', createUser.rows);
     return res.status(200).json({ message: 'user created successfully' });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'db error' });
+    console.error('error during user creation:', error);
+    return res.status(500).json({ error: error.message, stack: error.stack });
   }
 });
 

@@ -32,37 +32,46 @@ const RegModal = ({ active, setActive }) => {
     }
     return result;
   };
-  const submitHandler = async (e) => {
-    e.preventDefault();
+  const submitHandler = (e) => {
+      e.preventDefault();
       setEmail('');
       setPassword('');
       setCheckPassword('');
       setMessage('');
-    if (isValid(this) === true) {
-      console.log(email, password, checkPassword);
+    
+      console.log(email, password, checkPassword)
       try {
-        const res = await fetch('/createUser', {
-          method: 'POST',
+        if (isValid(this) === true) {
+        fetch("/createUser", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({email: email, password: password}),
-        });
-
-        
-        if (!res.ok) {
-          const errorData = await res.json();
-          setEmail(errorData.message || 'registration error')
-        } else {
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          })
+        })
+        .then((res) => {
+          if (!res.ok) {
+            return res.json().then((error) => {
+              throw new Error(error.error)
+            });
+          }
           setMessage('registration was successful')
+            return res.json()
+        })
+      .catch ((error) => {
+        setEmailError('network error', error.message)
+      })
         }
-      }
-      catch (err) {
-        setEmailError('network error')
-      }
-      };
-     
-  };
+  }
+    catch (error) {
+      console.log('server error', error)
+    } 
+  }
+  
+  
 
   useEffect(() => {
     swipe.current.addEventListener("swiped-down", () => {
@@ -128,14 +137,13 @@ const RegModal = ({ active, setActive }) => {
             <div className={styles["error-label"]}>{passwordError}</div>
           )}
         </div>
-        <div>{message && <p>{message}</p>}</div>
-
+        {message && (<div className={styles["success-label"]}>{message}</div>)}
         <button className={styles["registration__button"]}>
           Зарегистрироваться
         </button>
       </form>
     </div>
   );
-};
+      }
 
 export default RegModal;
