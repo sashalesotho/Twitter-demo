@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import convertTime from "../../public/assets/convert_time";
+import convertTime from "../../assets/convert_time";
 import messageTimer from "../../public/message-timer";
 import styles from "../styles/MessagesList.module.css";
 import MessageLoader from "./MessageLoader";

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import validateEmail from "../../public/assets/is_valid_email";
+import validateEmail from "../../assets/is_valid_email";
 import styles from "../styles/Modal.module.css";
 const RegModal = ({ active, setActive }) => {
   const swipe = useRef();
@@ -8,6 +8,8 @@ const RegModal = ({ active, setActive }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
+  const [message, setMessage] = useState("");
+
   const isValid = () => {
     let result = true;
     setEmailError("");
@@ -30,16 +32,47 @@ const RegModal = ({ active, setActive }) => {
     }
     return result;
   };
-  function submitHandler(e) {
-    e.preventDefault();
-    if (isValid(this) === true) {
-      console.log(email, password, checkPassword);
+  const submitHandler = (e) => {
+      e.preventDefault();
       setEmail('');
       setPassword('');
       setCheckPassword('');
-    }
+      setMessage('');
     
+      console.log(email, password, checkPassword)
+      try {
+        if (isValid(this) === true) {
+        fetch("/createUser", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          })
+        })
+        .then((res) => {
+          if (!res.ok) {
+            return res.json().then((error) => {
+              throw new Error(error.error)
+            });
+          }
+          setMessage('registration was successful')
+            return res.json()
+        })
+      .catch ((error) => {
+        setEmailError('network error', error.message)
+      })
+        }
   }
+    catch (error) {
+      console.log('server error', error)
+    } 
+  }
+  
+  
+
   useEffect(() => {
     swipe.current.addEventListener("swiped-down", () => {
       setActive(false);
@@ -104,13 +137,13 @@ const RegModal = ({ active, setActive }) => {
             <div className={styles["error-label"]}>{passwordError}</div>
           )}
         </div>
-
+        {message && (<div className={styles["success-label"]}>{message}</div>)}
         <button className={styles["registration__button"]}>
-          Зарегестрироваться
+          Зарегистрироваться
         </button>
       </form>
     </div>
   );
-};
+      }
 
 export default RegModal;

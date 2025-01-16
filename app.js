@@ -1,5 +1,6 @@
 import express from 'express';
 import pg from 'pg';
+import bcrypt from 'bcrypt';
 
 const app = express();
 const port = 3000;
@@ -18,6 +19,7 @@ client.connect()
   .catch((err) => console.error('Connection error', err.stack));
 
 app.use(express.static('public'));
+app.use(express.json());
 
 app.get('/posts', async (req, res) => {
   try {
@@ -30,6 +32,7 @@ app.get('/posts', async (req, res) => {
 });
 
 app.post('/posts', async (req, res) => {
+  console.log(req.body);
   try {
     const {
       id,
@@ -127,6 +130,27 @@ app.put('/posts/:id.json', async (req, res) => {
   } catch (error) {
     console.error('error update', error);
     return res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+app.post('/createUser', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'email and password are required' });
+  }
+  try {
+    const existUser = await client.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (existUser.rows.length > 0) {
+      return res.status(400).json({ error: 'user already exists' });
+    }
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    const createUser = await client.query('INSERT INTO users(email, password) VALUES($1, $2) RETURNING *', [email, hashPassword]);
+    console.log('user created', createUser.rows);
+    return res.status(200).json({ message: 'user created successfully' });
+  } catch (error) {
+    console.error('error during user creation:', error);
+    return res.status(500).json({ error: error.message, stack: error.stack });
   }
 });
 

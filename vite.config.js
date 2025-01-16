@@ -11,6 +11,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/posts.json': 'http://localhost:3000',
+      '/createUser': 'http://localhost:3000',
     },
   },
 });

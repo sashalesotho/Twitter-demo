@@ -1,4 +1,4 @@
-import convertTime from './assets/convert_time.js';
+import convertTime from '../assets/convert_time.js';
 import messageTimer from './message-timer.js';
 
 export default async function addAPI() {
