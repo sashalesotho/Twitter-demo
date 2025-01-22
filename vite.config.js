@@ -10,8 +10,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/posts.json': 'http://localhost:3000',
+      '/posts': 'http://localhost:3000',
       '/createUser': 'http://localhost:3000',
+      '/login': 'http://localhost:3000',
     },
   },
 });
