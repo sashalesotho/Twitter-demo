@@ -170,7 +170,6 @@ app.post('/createUser', async (req, res) => {
       [email, hashPassword],
     );
     console.log('user created', createUser.rows);
-    
     await client.query('INSERT INTO sessions (user_id, token) VALUES ($1, $2) RETURNING *', [createUser.rows[0].id, token]);
     res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.cookie('email', email, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
