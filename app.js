@@ -1,6 +1,8 @@
 import express from 'express';
 import pg from 'pg';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const port = 3000;
@@ -21,6 +23,7 @@ client
 
 app.use(express.static('public'));
 app.use(express.json());
+app.use(cookieParser());
 
 app.get('/posts', async (req, res) => {
   try {
@@ -148,6 +151,7 @@ app.put('/posts/:id.json', async (req, res) => {
 
 app.post('/createUser', async (req, res) => {
   const { email, password } = req.body;
+  const token = crypto.randomUUID();
   if (!email || !password) {
     return res.status(400).json({ error: 'email and password are required' });
   }
@@ -162,10 +166,14 @@ app.post('/createUser', async (req, res) => {
     const hashPassword = await bcrypt.hash(password, 10);
 
     const createUser = await client.query(
-      'INSERT INTO users(email, password) VALUES($1, $2) RETURNING *',
+      'INSERT INTO users(email, password) VALUES($1, $2) RETURNING id',
       [email, hashPassword],
     );
     console.log('user created', createUser.rows);
+    await client.query('INSERT INTO sessions (user_id, token) VALUES ($1, $2) RETURNING *', [createUser.rows[0].id, token]);
+    res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+    res.cookie('email', email, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+
     return res.status(200).json({ message: 'user created successfully' });
   } catch (error) {
     console.error('error during user creation:', error);
@@ -175,12 +183,16 @@ app.post('/createUser', async (req, res) => {
 
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
+  const token = crypto.randomUUID();
   try {
     const result = await client.query('SELECT * FROM users WHERE email = $1', [email]);
     if (result.rows.length > 0) {
       const user = result.rows[0];
       const match = await bcrypt.compare(password, user.password);
       if (match) {
+        await client.query('INSERT INTO sessions (user_id, token) VALUES ($1, $2) RETURNING *', [user.id, token]);
+        res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+        res.cookie('email', email, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
         return res.status(200).json({ text: 'login successful' });
       }
       return res.status(400).json({ error: 'invalid password' });
@@ -189,6 +201,30 @@ app.post('/login', async (req, res) => {
   } catch (error) {
     console.error('error:', error);
     return res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+app.get('/protected-route', async (req, res) => {
+  const { token } = req.cookies;
+  const { email } = req.cookies;
+
+  if (!token || !email) {
+    return res.status(401).send('authorization required');
+  }
+
+  try {
+    const result = await client.query(
+      "SELECT * FROM sessions WHERE token = $1 AND created_at > NOW() - INTERVAL '7 days'",
+      [token],
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(401).send('invalid or expired token');
+    }
+
+    return res.status(200).send('ok');
+  } catch (err) {
+    return res.status(500).send('token verification error');
   }
 });
 
