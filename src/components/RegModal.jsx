@@ -59,6 +59,7 @@ const RegModal = ({ active, setActive }) => {
             });
           }
           setMessage('registration was successful')
+          window.location.href = '/feed';
             return res.json()
         })
       .catch ((error) => {

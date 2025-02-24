@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './App.css'
 import Header from './components/Header'
 import Registration from './components/Registration'
@@ -11,6 +12,14 @@ import Blogers from './components/Blogers'
 
 function App() {
   const [count, setCount] = useState(0)
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+    if (token) {
+      navigate('/feed');
+    }
+  }, [navigate]);
 
   return (
     <div className='container'>

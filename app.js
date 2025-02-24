@@ -8,11 +8,11 @@ const app = express();
 const port = 3000;
 const { Client } = pg;
 const client = new Client({
-  host: 'dpg-cu7donrqf0us73e4ecm0-a.oregon-postgres.render.com',
+  host: 'dpg-curr31vnoe9s73d8fstg-a.oregon-postgres.render.com',
   port: '5432',
-  user: 'twitter_demo_2101_user',
-  password: '3Uz9dvGZDVZ6dzY4DVhUnI5kJUpb9WO5',
-  database: 'twitter_demo_2101',
+  user: 'twitter_demo_2102_user',
+  password: 'uF04ciERWnVej7FB8jXWWxMbEUuEazFp',
+  database: 'twitter_demo_2102',
   ssl: true,
 });
 
@@ -226,6 +226,30 @@ app.get('/protected-route', async (req, res) => {
   } catch (err) {
     return res.status(500).send('token verification error');
   }
+});
+
+async function isValidToken(token) {
+  try {
+    const result = await client.query(
+      "SELECT * FROM sessions WHERE token = $1 AND created_at > NOW() - INTERVAL '7 days'",
+      [token],
+    );
+
+    return result.rowCount > 0;
+  } catch (err) {
+    console.error('error checking token:', err);
+    return false;
+  }
+}
+
+app.get('/feed', async (req, res) => {
+  const { token } = req.cookies;
+
+  if (!token || !(await isValidToken(token))) {
+    return res.status(401).send('<script>alert("Пользователь не авторизован"); window.location.href = "/";</script>');
+  }
+
+  return res.send('feed');
 });
 
 app.listen(port, () => {
