@@ -242,15 +242,15 @@ async function isValidToken(token) {
   }
 }
 
-app.get('/feed', async (req, res) => {
-  const { token } = req.cookies;
+// app.get('/feed', async (req, res) => {
+//   const { token } = req.cookies;
 
-  if (!token || !(await isValidToken(token))) {
-    return res.status(401).send('<script>alert("Пользователь не авторизован"); window.location.href = "/";</script>');
-  }
+//   if (!token || !(await isValidToken(token))) {
+//     return res.status(401).send('<script>alert("Пользователь не авторизован"); window.location.href = "/";</script>');
+//   }
 
-  return res.send('feed');
-});
+//   return res.send('feed');
+// });
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
