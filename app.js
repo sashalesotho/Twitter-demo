@@ -228,29 +228,30 @@ app.get('/protected-route', async (req, res) => {
   }
 });
 
-async function isValidToken(token) {
-  try {
-    const result = await client.query(
-      "SELECT * FROM sessions WHERE token = $1 AND created_at > NOW() - INTERVAL '7 days'",
-      [token],
-    );
+// async function isValidToken(token) {
+//   try {
+//     const result = await client.query(
+//       "SELECT * FROM sessions WHERE token = $1 AND created_at > NOW() - INTERVAL '7 days'",
+//       [token],
+//     );
 
-    return result.rowCount > 0;
-  } catch (err) {
-    console.error('error checking token:', err);
-    return false;
-  }
-}
+//     return result.rowCount > 0;
+//   } catch (err) {
+//     console.error('error checking token:', err);
+//     return false;
+//   }
+// }
 
-app.get('/feed', async (req, res) => {
-  const { token } = req.cookies;
+// app.get('/feed', async (req, res) => {
+//   const { token } = req.cookies;
 
-  if (!token || !(await isValidToken(token))) {
-    return res.status(401).send('<script>alert("Пользователь не авторизован"); window.location.href = "/";</script>');
-  }
+//   if (!token || !(await isValidToken(token))) {
+//     return res.status(401).send('<script>alert("Пользователь не авторизован");
+// window.location.href = "/";</script>');
+//   }
 
-  return res.send('feed');
-});
+//   return res.send('feed');
+// });
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

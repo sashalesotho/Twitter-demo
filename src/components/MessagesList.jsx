@@ -59,7 +59,7 @@ const MessagesList = () => {
   );
   return (
     <div className={styles.container}>
-      <div className={styles["posts__header"]}>Последние сообщения</div>
+     
       <div className={styles.posts}>
         <div className={styles['left-desktop-body']}>
         {isLoading ? (
