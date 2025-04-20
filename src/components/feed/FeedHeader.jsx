@@ -19,9 +19,7 @@ const FeedHeader = () => {
             <div className={styles.logo}>
                 <img className={styles.logo} src="images/logo.svg" alt="" />
             </div>
-            <div className={styles.logo}>
-                <img className={styles.whitelogo} src="images/white_logo.svg" alt="" />
-            </div>
+            
             <div className={styles.avatar}>
                 <img src="images/alexander.png" alt="avatar" />
             </div>

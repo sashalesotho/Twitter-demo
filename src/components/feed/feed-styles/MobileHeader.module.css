@@ -1,0 +1,19 @@
+.logo {
+    width: 21px;
+    height: 23px;
+  }
+
+  .header {
+    background-color: #0057FF;
+    width: 100%;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media screen and (width > 1279px) {
+    .header {
+      display: none;
+    }
+  }

@@ -1,34 +1,73 @@
+body {
+  font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+}
 
-    .container {
-  
-        display: flex;
-        flex-direction: row;
-        /*align-items: center;
-        justify-content: center;
-        text-align: center; */
-        background-color: #F4F5F6;
-        width: 100%;
-        
-      }
-    
-    
-    .left {
-        width: 633px;
-    
-    
-    }
-    .right {
+.mobile-container {
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+.desktop-container {
+  display: none;
+}
+
+.write {
+  width: 64px;
+  height: 64px;
+  background: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  position: absolute;
+  bottom: 61px;
+  right: 24px;
+}
+
+.desktop-body {
+  display: none;
+}
+.desktop-left {
+  display: none;
+}
+.desktop-right {
+  display: none;
+}
+
+@media screen and (width > 1279px) {
+  .mobile-container {
+    display: none;
+  }
+  .write {
+    display: none;
+  }
+  .desktop-body {
+    display: flex;
+    flex-direction: row;
+  }
+  .desktop-left {
+    display: flex;
+    flex-direction: column;
+    width: 633px;
+  }
+  .desktop-right {
+    display: flex;
+    flex-direction: column;
     width: 312px;
-    }
-
-@media screen and (max-width: 479px) {
-    
-    .right {
-        display: none;
-        }
-
-    .container {
-        max-width: 479px;
-    }
   }
 
+  .desktop-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    background-color: #F4F5F6;
+  }
+
+}

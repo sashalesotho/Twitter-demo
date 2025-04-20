@@ -1,4 +1,9 @@
 .header {
+  display: none;
+}
+
+@media screen and (width > 1279px) {
+  .header {
     display: flex;
     padding: 10px 20px;
     background: white;
@@ -39,25 +44,7 @@ padding: 0 20px;
     height: 23px;
   }
 
-  .white_logo {
-    display: none;
-  }
+  
 
-  @media screen and (max-width: 479px) {
-    
-  .header {
-    background-color: #0057FF;
-    max-width: 479px;;
-  }
-  nav {
-    display: none;
-  }
-  .whitelogo {
-    width: 21px;
-    height: 23px;
-    align-items: center;
-  }
-  .avatar {
-    display: none;
-  }
-  }
+  
+}

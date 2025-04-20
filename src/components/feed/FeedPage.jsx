@@ -1,27 +1,44 @@
+import { useEffect, useRef, useState } from "react";
+import NewMessage from "./NewMessage";
 import Blogers from "../Blogers";
-import MessagesList from "../MessagesList";
+import FeedMessagesList from "./FeedMessagesList";
 import Topics from "../Topics";
 import FeedHeader from "./FeedHeader";
-import FeedInput from "./FeedInput";
 import FeedMessage from "./FeedMessage";
 import User from "./User";
+import MobileHeader from "./MobileHeader";
 import styles from "./feed-styles/FeedPage.module.css";
+import MobileFooter from "./MobileFooter";
+import MessagesList from "../MessagesList";
 
 
 const Feed = () => {
-    return (<>
-    <FeedHeader/>
-        <div className={styles.container}>
+    const [messageModalActive, setMessageModalActive] = useState(false);
+    return (
+        <>
+        <div className={styles["mobile-container"]}>
             
-            <div className={styles.left}>
-                <FeedInput/>
-                <FeedMessage/>
-                <MessagesList/>
+            <MobileHeader />
+            <MessagesList />
+            <MobileFooter />
+            <button className={styles.write} onClick={() => setMessageModalActive(true)}><img src="/images/write.svg" alt="" /></button>
+            <NewMessage active={messageModalActive} setActive={setMessageModalActive} />
             </div>
-            <div className={styles.right}>
+            
+            
+        
+        <div className={styles["desktop-container"]}>
+        <FeedHeader />
+        <div className={styles["desktop-body"]}>
+            <div className={styles["desktop-left"]}>
+                <FeedMessage />
+                <FeedMessagesList />
+            </div>
+            <div className={styles["desktop-right"]}>
                 <User/>
                 <Topics/>
                 <Blogers/>
+            </div>
             </div>
         </div>
         </>
