@@ -8,11 +8,11 @@ const app = express();
 const port = 3000;
 const { Client } = pg;
 const client = new Client({
-  host: 'dpg-curr31vnoe9s73d8fstg-a.oregon-postgres.render.com',
+  host: 'db.eqoqauofeyxzpuigjtgr.supabase.co',
   port: '5432',
-  user: 'twitter_demo_2102_user',
-  password: 'uF04ciERWnVej7FB8jXWWxMbEUuEazFp',
-  database: 'twitter_demo_2102',
+  user: 'postgres',
+  password: 'passwordfortwitter111',
+  database: 'postgres',
   ssl: true,
 });
 

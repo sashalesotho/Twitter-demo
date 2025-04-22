@@ -39,8 +39,9 @@
   }
   
   .userHandle {
-    color: gray;
+    color: #ABACB1;
     margin-bottom: 10px;
+    font-size: 12px;
   }
   
   .stats {
