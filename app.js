@@ -3,16 +3,17 @@ import pg from 'pg';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 const app = express();
 const port = 3000;
 const { Client } = pg;
 const client = new Client({
-  host: 'db.eqoqauofeyxzpuigjtgr.supabase.co',
+  host: 'dpg-d07bo8s9c44c739rqccg-a.oregon-postgres.render.com',
   port: '5432',
-  user: 'postgres',
-  password: 'passwordfortwitter111',
-  database: 'postgres',
+  user: 'twitter2804_user',
+  password: 'JP4oN2Ql2oI7kOh1UkrjEevAitds5ulW',
+  database: 'twitter2804',
   ssl: true,
 });
 
@@ -22,6 +23,10 @@ client
   .catch((err) => console.error('Connection error', err.stack));
 
 app.use(express.static('public'));
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -36,57 +41,44 @@ app.get('/posts', async (req, res) => {
 });
 
 app.post('/posts', async (req, res) => {
-  console.log(req.body);
-  try {
-    const {
-      id,
-      userId,
-      name,
-      mail,
-      message,
-      imgMessage,
-      date,
-      quantityReposts,
-      quantityLike,
-      quantityShare,
-    } = req.body;
+  const { token } = req.cookies;
+  const { message } = req.body;
 
-    if (!req.body) {
-      return res.status(400).json({
-        error: 'message is empty',
-      });
+  if (!token) {
+    return res.status(401).json({ error: 'Необходима авторизация' });
+  }
+
+  try {
+    const session = await client.query(
+      `SELECT users.id, users.email FROM sessions 
+       JOIN users ON sessions.user_id = users.id 
+       WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'`,
+      [token],
+    );
+
+    if (session.rows.length === 0) {
+      return res.status(401).json({ error: 'Неверный или просроченный токен' });
     }
 
-    const result = await client.query(
-      `INSERT INTO posts (id,
-    userId,
-    name,
-    mail,
-    message,
-    imgMessage,
-    date,
-    quantityReposts,
-    quantityLike,
-    quantityShare) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-      [
-        id,
-        userId,
-        name,
-        mail,
-        message,
-        imgMessage,
-        date,
-        quantityReposts,
-        quantityLike,
-        quantityShare,
-      ],
-    );
-    const newPost = result.rows[0];
+    const user = session.rows[0];
 
-    return res.status(201).json(newPost);
+    if (!message || typeof message !== 'string') {
+      return res.status(400).json({ error: 'Сообщение не должно быть пустым' });
+    }
+
+    const id = crypto.randomUUID();
+    const date = new Date();
+
+    const result = await client.query(
+      `INSERT INTO posts (id, userId, name, mail, message, date) 
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [id, user.id, user.email.split('@')[0], user.email, message, date],
+    );
+
+    return res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error('error insert', error);
-    return res.status(500).json({ error: 'internal server error' });
+    console.error('Ошибка при сохранении поста:', error);
+    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 });
 
@@ -228,30 +220,29 @@ app.get('/protected-route', async (req, res) => {
   }
 });
 
-// async function isValidToken(token) {
-//   try {
-//     const result = await client.query(
-//       "SELECT * FROM sessions WHERE token = $1 AND created_at > NOW() - INTERVAL '7 days'",
-//       [token],
-//     );
+async function isValidToken(token) {
+  try {
+    const result = await client.query(
+      "SELECT * FROM sessions WHERE token = $1 AND created_at > NOW() - INTERVAL '7 days'",
+      [token],
+    );
 
-//     return result.rowCount > 0;
-//   } catch (err) {
-//     console.error('error checking token:', err);
-//     return false;
-//   }
-// }
+    return result.rowCount > 0;
+  } catch (err) {
+    console.error('error checking token:', err);
+    return false;
+  }
+}
 
-// app.get('/feed', async (req, res) => {
-//   const { token } = req.cookies;
+app.get('/feed', async (req, res) => {
+  const { token } = req.cookies;
 
-//   if (!token || !(await isValidToken(token))) {
-//     return res.status(401).send('<script>alert("Пользователь не авторизован");
-// window.location.href = "/";</script>');
-//   }
+  if (!token || !(await isValidToken(token))) {
+    return res.status(401).send('Пользователь не авторизован');
+  }
 
-//   return res.send('feed');
-// });
+  return res.send('feed');
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

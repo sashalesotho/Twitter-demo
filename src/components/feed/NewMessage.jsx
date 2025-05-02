@@ -63,7 +63,7 @@ const NewMessage = ({ active, setActive }) => {
         </svg>
     </div>
     <button className={styles.photobutton}>
-        <img src="/public/images/addphoto.svg" alt="" />
+        <img src="/images/addphoto.svg" alt="" />
     </button>
     <button className={styles.button}>Отправить</button>
       </div>
