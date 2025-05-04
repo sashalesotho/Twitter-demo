@@ -10,7 +10,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/posts': 'http://localhost:3000',
+      '/posts': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+        cookieDomainRewrite: 'localhost',
+      },
       '/createUser': 'http://localhost:3000',
       '/login': 'http://localhost:3000',
       '/protected-route': 'http://localhost:3000',

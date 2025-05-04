@@ -4,7 +4,8 @@ import styles from "./feed-styles/FeedMessage.module.css";
 
 const FeedMessage = () => {
     const [message, setMessage] = useState("");
-    
+    const [loading, setLoading] = useState(false);
+
     const maxChars = 800;
     const progressRef = useRef(null);
     const textRef = useRef(null);
@@ -24,11 +25,39 @@ const FeedMessage = () => {
       
     }, [message]);
 
-    const handleSubmit = (e) => {
-      e.preventDefault();
+    const handleSavePost = async () => {
+      if (!message.trim()) {
+        alert("введите текст сообщения");
+        return;
+      }
+
+      setLoading(true);
+      try {
+        console.log("Отправка сообщения:", message);
+        const response = await fetch("/posts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({ message })
+        });
+      console.log("Ответ от сервера:", response);
+      if(!response.ok) {
+        throw new Error("ошибка при сохранении поста");
+      }
       setMessage("");
+      alert("пост сохранён");
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
     }
-        
+  }
+   const handleSubmit = async (e) => {
+    e.preventDefault();
+    await handleSavePost();
+   }     
 
     return (
       <div className={styles.myMessage}>
@@ -51,7 +80,7 @@ const FeedMessage = () => {
             <text x="60" y="60" className={styles["progress-text"]} ref={textRef} transform="rotate(90, 60, 60)">0</text>
         </svg>
     </div>
-          <button type="submit" className={styles.sendButton}>Отправить</button>
+          <button type="submit" className={styles.sendButton} disabled={loading}>{loading ? "сохранение..." : "отправить"}</button>
         </div>
     
     
