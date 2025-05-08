@@ -2,8 +2,7 @@ import styles from '../styles/MessagesList.module.css';
 import convertTime from '../../assets/convert_time';
 import messageTimer from '../../public/message-timer';
 const Message = ({id, picUrl, name, mail, date, message, quantityReposts, quantityLike, quantityShare}) => {
-  let now;
-  setInterval(now = Date.now(), 60000);
+  const now = Date.now();
 return (
     <li className={styles.post} id={id}>
     <div className={styles['post__avatar']}>
@@ -16,7 +15,7 @@ return (
         <p className={styles["user__nickname"]}>{mail}</p>
         </div>
         <div className={styles["post__time"]}>
-        <p>{convertTime(messageTimer(date), now)}</p>
+        <p>{date ? convertTime(messageTimer(date), now) : "нет даты"}</p>
         </div>
       </div>
       <div className={styles["post__message"]}>{message}</div>
