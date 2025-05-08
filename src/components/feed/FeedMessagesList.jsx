@@ -5,7 +5,6 @@ import Message from "../Message";
 
 const FeedMessagesList = () => {
   const [messagesArr, setMessages] = useState([]);
-  const [picturesArr, setPictures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const getIsLoading = async () => {
@@ -15,24 +14,28 @@ const FeedMessagesList = () => {
     }
   };
   const getApiMessages = async () => {
-    const response = await fetch(
-      "https://burtovoy.github.io/messages.json"
-    ).then((response) => response.json());
+    try {
+      const response = await fetch("/posts", {
+        credentials: "include",
+      });
 
-    setMessages(response.messages);
+      if (!response.ok) {
+        throw new Error("Ошибка при загрузке постов");
+      }
+
+      const data = await response.json();
+      setMessages(data);
+    } catch (error) {
+      console.error("Ошибка загрузки постов:", error.message);
+      setMessages([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const getApiPictures = async () => {
-    const response = await fetch(
-      "https://burtovoy.github.io/pictures.json"
-    ).then((response) => response.json());
-
-    setPictures(response.pictures);
-  };
 
   useEffect(() => {
     getApiMessages();
-    getApiPictures();
     getIsLoading();
   }, []);
 
@@ -41,14 +44,14 @@ const FeedMessagesList = () => {
       <Message
       key={el.id}
       id={el.id}
-      picUrl={picturesArr[key]?.url}
-      name={el.name}
-      mail={el.name}
+      picUrl={el.picurl || "images/anonavatar.svg"}
+      name={el.name || 'аноним'}
+      mail={el.name || '@anon'}
       date={el.date}
       message={el.message}
-      quantityReposts={el.quantityReposts}
-      quantityLike={el.quantityLike}
-      quantityShare={el.quantityShare}
+      quantityReposts={el.quantityReposts || 0}
+      quantityLike={el.quantityLike || 0}
+      quantityShare={el.quantityShare || 0}
     />
     )
   } 

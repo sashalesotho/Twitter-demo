@@ -1,26 +1,25 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./feed-styles/NewMessage.module.css";
 import postSize from "../../../assets/post_size";
 
 const NewMessage = ({ active, setActive }) => {
+
+  
   const swipe = useRef(null);
   const textAreaRef = useRef(null);
   const progressRef = useRef(null);
   const textRef = useRef(null);
 
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const maxChars = 800;
 
+
   useEffect(() => {
-    if (swipe.current) {
-      const handleSwipeDown = () => setActive(false);
-      swipe.current.addEventListener("swiped-down", handleSwipeDown);
-      return () => {
-        swipe.current.removeEventListener("swiped-down", handleSwipeDown);
-      }
-    }
-    
-  }, [setActive]);
+    swipe.current.addEventListener("swiped-down", () => {
+      setActive(false);
+    });
+  });
 
   useEffect(() => {
     const textLength = postSize(message);
@@ -38,12 +37,39 @@ const NewMessage = ({ active, setActive }) => {
     }
   }, [message]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSavePost = async () => {
+    if (!message.trim()) {
+      alert("введите текст сообщения");
+      return;
+    }
 
-    if (!message.trim()) return; 
-    setMessage(""); 
-  };
+    setLoading(true);
+    try {
+      console.log("Отправка сообщения:", message);
+      const response = await fetch("/posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({ message })
+      });
+    console.log("Ответ от сервера:", response);
+    if(!response.ok) {
+      throw new Error("ошибка при сохранении поста");
+    }
+    setMessage("");
+    alert("пост сохранён");
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    setLoading(false);
+  }
+}
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  await handleSavePost();
+ }  
 
   return (
     <div className={active ? styles.modal : styles.hidden}>
