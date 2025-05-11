@@ -32,11 +32,17 @@ app.use(cookieParser());
 
 app.get('/posts', async (req, res) => {
   try {
-    const query = await client.query('SELECT * FROM posts');
-    return res.json(query.rows);
+    const result = await client.query(`
+      SELECT id, name, mail, message, date,
+             quantityReposts, quantityLike, quantityShare
+      FROM posts
+      ORDER BY date DESC
+    `);
+
+    res.json(result.rows);
   } catch (error) {
-    console.error('error select', error);
-    return res.status(500).send('server error');
+    console.error('Ошибка при получении постов:', error);
+    res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 });
 
