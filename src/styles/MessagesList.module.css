@@ -135,6 +135,16 @@
     border-radius: 12px;
   }
 
+  .post__image {
+    margin-top: 10px;
+  }
+  
+  .post__image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }
+
   @media screen and (width > 1279px) {
     .container {
       width: 960px;
@@ -166,6 +176,16 @@
     }
     .post {
       border-bottom: 1px solid #fff;
+    }
+
+    .post__image {
+      margin-top: 10px;
+    }
+    
+    .post__image img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
     }
   }
   

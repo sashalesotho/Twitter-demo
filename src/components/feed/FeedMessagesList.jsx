@@ -24,6 +24,7 @@ const FeedMessagesList = () => {
       }
 
       const data = await response.json();
+      console.log('полученные данные', data);
       setMessages(data);
     } catch (error) {
       console.error("Ошибка загрузки постов:", error.message);
@@ -49,6 +50,7 @@ const FeedMessagesList = () => {
       mail={el.name || '@anon'}
       date={el.date}
       message={el.message}
+      imgmessage={el.imgmessage}
       quantityReposts={el.quantityReposts || 0}
       quantityLike={el.quantityLike || 0}
       quantityShare={el.quantityShare || 0}

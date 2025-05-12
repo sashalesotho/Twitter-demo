@@ -33,7 +33,7 @@ app.use(cookieParser());
 app.get('/posts', async (req, res) => {
   try {
     const result = await client.query(`
-      SELECT id, name, mail, message, date,
+      SELECT id, name, mail, message, imgmessage, date,
              quantityReposts, quantityLike, quantityShare
       FROM posts
       ORDER BY date DESC
@@ -48,7 +48,8 @@ app.get('/posts', async (req, res) => {
 
 app.post('/posts', async (req, res) => {
   const { token } = req.cookies;
-  const { message } = req.body;
+  const { message, image } = req.body;
+  console.log('ссылка на изображение:', image);
 
   if (!token) {
     return res.status(401).json({ error: 'Необходима авторизация' });
@@ -76,9 +77,9 @@ app.post('/posts', async (req, res) => {
     const date = new Date();
 
     const result = await client.query(
-      `INSERT INTO posts (id, userId, name, mail, message, date) 
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [id, user.id, user.email.split('@')[0], user.email, message, date],
+      `INSERT INTO posts (id, userId, name, mail, message, imgmessage, date) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [id, user.id, user.email.split('@')[0], user.email, message, image || '', date],
     );
 
     return res.status(201).json(result.rows[0]);

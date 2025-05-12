@@ -181,8 +181,12 @@ svg {
     height: 52px;
     border: 1px solid #0057ff;
     border-radius: 10px;
+    margin-right: 10px;
 }
 
+.widget {
+  margin-right: 20px;
+}
 
 @media screen and (width > 1279px) {
     .modal {

@@ -64,6 +64,10 @@
       align-items: center;
       margin-left: 250px;
     }
+
+    .widget {
+      margin-left: 20px;
+    }
   }
   
   .messageInput {

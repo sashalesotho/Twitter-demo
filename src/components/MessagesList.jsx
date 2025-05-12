@@ -52,6 +52,7 @@ const MessagesList = () => {
       mail={el.name || '@anon'}
       date={el.date}
       message={el.message}
+      imgmessage={el.imgmessage}
       quantityReposts={el.quantityReposts || 0}
       quantityLike={el.quantityLike || 0}
       quantityShare={el.quantityShare || 0}
