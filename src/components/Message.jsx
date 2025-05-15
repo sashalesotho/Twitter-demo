@@ -1,7 +1,7 @@
 import styles from '../styles/MessagesList.module.css';
 import convertTime from '../../assets/convert_time';
 import messageTimer from '../../public/message-timer';
-const Message = ({id, picUrl, name, mail, date, message, quantityReposts, quantityLike, quantityShare}) => {
+const Message = ({id, picUrl, name, mail, date, message, imgmessage, quantityReposts, quantityLike, quantityShare}) => {
   const now = Date.now();
 return (
     <li className={styles.post} id={id}>
@@ -18,7 +18,14 @@ return (
         <p>{date ? convertTime(messageTimer(date), now) : "нет даты"}</p>
         </div>
       </div>
-      <div className={styles["post__message"]}>{message}</div>
+      <div className={styles["post__message"]}>
+        {message}
+        {imgmessage && (
+          <div className={styles["post__image"]}>
+            <img src={imgmessage} alt="прикрепленное изображение" />
+          </div>
+        )}
+        </div>
       <div className={styles.stats}>
       <div className={styles["stats__item"]}>
         <img src="images/reply.svg" alt="ответить" />

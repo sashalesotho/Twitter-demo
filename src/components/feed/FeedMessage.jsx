@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import postSize from "../../../assets/post_size";
+import { Widget } from '@uploadcare/react-widget';
 import styles from "./feed-styles/FeedMessage.module.css";
 
 const FeedMessage = () => {
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
+    const [imgUrl, setImgUrl] = useState('');
 
     const maxChars = 800;
     const progressRef = useRef(null);
@@ -25,6 +27,11 @@ const FeedMessage = () => {
       
     }, [message]);
 
+    const handleFileUpload = (fileInfo) => {
+      console.log("загруженный файл:", fileInfo);
+      setImgUrl(fileInfo.cdnUrl);
+    };
+
     const handleSavePost = async () => {
       if (!message.trim()) {
         alert("введите текст сообщения");
@@ -40,7 +47,7 @@ const FeedMessage = () => {
             "Content-Type": "application/json"
           },
           credentials: "include",
-          body: JSON.stringify({ message })
+          body: JSON.stringify({ message, image: imgUrl })
         });
       console.log("Ответ от сервера:", response);
       if(!response.ok) {
@@ -69,9 +76,16 @@ const FeedMessage = () => {
         </div>
         
         <div className={styles.actions}>
-          <button className={styles.iconButton}>
+          {/* <button className={styles.iconButton}>
             <img src="images/addphoto.svg" alt="" />
-          </button>
+          </button> */}
+          <div className={styles.widget}>
+          <Widget className={styles.photobutton}
+  publicKey="d45be7bd5518f8ea3cce"
+  onChange={(fileInfo) => handleFileUpload(fileInfo)}
+/>
+          </div>
+          
           
           <div className={styles["progress-container"]}>
         <svg width="60" height="60" viewBox="0 0 120 120">
