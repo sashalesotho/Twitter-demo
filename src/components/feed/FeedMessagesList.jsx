@@ -1,49 +1,39 @@
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPosts } from "../../../store/postsSlice";
 import styles from "./feed-styles/FeedMessagesList.module.css";
 import MessageLoader from "../MessageLoader";
 import Message from "../Message";
 
 const FeedMessagesList = () => {
-  const [messagesArr, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const getIsLoading = async () => {
-    const response = await fetch("https://burtovoy.github.io/messages.json");
-    if (response.ok) {
-      setIsLoading(false);
-    }
-  };
-  const getApiMessages = async () => {
-    try {
-      const response = await fetch("/posts", {
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error("Ошибка при загрузке постов");
-      }
-
-      const data = await response.json();
-      console.log('полученные данные', data);
-      setMessages(data);
-    } catch (error) {
-      console.error("Ошибка загрузки постов:", error.message);
-      setMessages([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-
+  const dispatch = useDispatch();
+  const { posts, loading, error } = useSelector((state) => state.posts);
+  
   useEffect(() => {
-    getApiMessages();
-    getIsLoading();
-  }, []);
+    dispatch(fetchPosts());
+  }, [dispatch]);
 
-  let messages = [...messagesArr].map((el, key) => {
-    return(
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.posts}>
+          <div className={styles['left-desktop-body']}>
+            <MessageLoader />
+            <MessageLoader />
+            <MessageLoader />
+          </div>
+        </div>
+      </div>
+      );
+    }
+
+    if (error) {
+      return <div className={styles.container}>Ошибка загрузки постов: {error}</div>;
+    }
+
+  const messages = posts.map((el, index) => (
       <Message
-      key={el.id}
+      key={el.id || `message-${index}`}
       id={el.id}
       picUrl={el.picurl || "images/anonavatar.svg"}
       name={el.name || 'аноним'}
@@ -55,30 +45,15 @@ const FeedMessagesList = () => {
       quantityLike={el.quantityLike || 0}
       quantityShare={el.quantityShare || 0}
     />
-    )
-  } 
-  );
+    ));
+
   return (
     <div className={styles.container}>
-     
-      <div className={styles.posts}>
-        <div className={styles['left-desktop-body']}>
-        {isLoading ? (
-        <>
-          <MessageLoader />
-          <MessageLoader />
-          <MessageLoader />
-        </>
-      ) : (
-        messages
-      )}
+    <div className={styles.posts}>
+        <div className={styles["left-desktop-body"]}>
+        {messages}
         </div>
-      
-      <div className={['right-desktop-body']}>
       </div>
-      </div>
-      
-
     </div>
   );
 };
