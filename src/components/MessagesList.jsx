@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchPosts } from "../../store/postsSlice";
 import convertTime from "../../assets/convert_time";
 import messageTimer from "../../public/message-timer";
 import styles from "../styles/MessagesList.module.css";
@@ -8,44 +10,16 @@ import Blogers from "./Blogers";
 import Topics from "./Topics";
 
 const MessagesList = () => {
-  const [messagesArr, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch();
+  const { posts, loading, error } = useSelector((state) => state.posts);
 
-  const getIsLoading = async () => {
-    const response = await fetch("https://burtovoy.github.io/messages.json");
-    if (response.ok) {
-      setIsLoading(false);
-    }
-  };
-  const getApiMessages = async () => {
-    try {
-      const response = await fetch("/posts", {
-        credentials: "include",
-      });
+  useEffect(()=> {
+    dispatch(fetchPosts());
+  }, [dispatch]);
 
-      if (!response.ok) {
-        throw new Error("Ошибка при загрузке постов");
-      }
-
-      const data = await response.json();
-      setMessages(data);
-    } catch (error) {
-      console.error("Ошибка загрузки постов:", error.message);
-      setMessages([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getApiMessages();
-    getIsLoading();
-  }, []);
-
-  let messages = [...messagesArr].map((el, key) => {
-    return(
-      <Message
-      key={el.id}
+  let messages = posts.map((el, index) => (
+    <Message
+      key={el.id || `message-${index}`}
       id={el.id}
       picUrl={el.picurl || "images/anonavatar.svg"}
       name={el.name || 'аноним'}
@@ -57,16 +31,14 @@ const MessagesList = () => {
       quantityLike={el.quantityLike || 0}
       quantityShare={el.quantityShare || 0}
     />
-    
-    )
-  } 
-  );
+    ));
+
   return (
     <div className={styles.container}>
      
       <div className={styles.posts}>
         <div className={styles['left-desktop-body']}>
-        {isLoading ? (
+        {loading ? (
         <>
           <MessageLoader />
           <MessageLoader />

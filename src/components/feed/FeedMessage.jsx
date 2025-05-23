@@ -1,12 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addPost } from "../../../store/postsSlice";
 import postSize from "../../../assets/post_size";
 import { Widget } from '@uploadcare/react-widget';
 import styles from "./feed-styles/FeedMessage.module.css";
 
 const FeedMessage = () => {
+
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.posts);
+
     const [message, setMessage] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [imgUrl, setImgUrl] = useState('');
+    const [imgUrl, setImgUrl] = useState("");
 
     const maxChars = 800;
     const progressRef = useRef(null);
@@ -32,39 +37,25 @@ const FeedMessage = () => {
       setImgUrl(fileInfo.cdnUrl);
     };
 
-    const handleSavePost = async () => {
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+
       if (!message.trim()) {
         alert("введите текст сообщения");
         return;
       }
-
-      setLoading(true);
       try {
-        console.log("Отправка сообщения:", message);
-        const response = await fetch("/posts", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: "include",
-          body: JSON.stringify({ message, image: imgUrl })
-        });
-      console.log("Ответ от сервера:", response);
-      if(!response.ok) {
-        throw new Error("ошибка при сохранении поста");
+        await dispatch(addPost({ message, image: imgUrl })).unwrap();
+        setMessage("");
+        setImgUrl("");
+        alert("пост сохранён");
+      } catch (error) {
+        console.error("ошибка при сохранении поста:", error);
+        alert(error.message || "ошибка при сохранении поста");
       }
-      setMessage("");
-      alert("пост сохранён");
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-   const handleSubmit = async (e) => {
-    e.preventDefault();
-    await handleSavePost();
-   }     
+     
+  };
+    
 
     return (
       <div className={styles.myMessage}>
@@ -76,9 +67,6 @@ const FeedMessage = () => {
         </div>
         
         <div className={styles.actions}>
-          {/* <button className={styles.iconButton}>
-            <img src="images/addphoto.svg" alt="" />
-          </button> */}
           <div className={styles.widget}>
           <Widget className={styles.photobutton}
   publicKey="d45be7bd5518f8ea3cce"

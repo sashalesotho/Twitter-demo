@@ -1,15 +1,22 @@
-{
+
+  {
+	"root": true,
 	"extends": "airbnb-base",
 	"env": {
 	  "node": true,
 	  "es6": true,
 	  "browser": true
 	},
+	"parserOptions": {
+	  "ecmaVersion": 2020
+	},
 	"rules": {
-	  "import/extensions": ["error", "ignorePackages", {"js": "always"}],
+	  "import/extensions": ["error", "ignorePackages", { "js": "always" }],
 	  "prefer-arrow-callback": 0,
 	  "mocha/prefer-arrow-callback": 0,
-	  "linebreak-style": 0
+	  "linebreak-style": 0,
+	  "no-param-reassign": 0
 
 	}
- }
+  }
+  
