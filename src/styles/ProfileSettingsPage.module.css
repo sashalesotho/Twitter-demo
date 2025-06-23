@@ -1,0 +1,181 @@
+
+
+
+  .wrapper {
+    width: 100%;
+    padding: 16px 24px 0 0;
+  }
+
+  .photobutton {
+    width: 128px;
+    height: 128px;
+    border: 1px solid gray;
+    border-radius: 50%;
+    padding-top: 40px;
+    margin: 0 auto;
+    margin-bottom: 15px;
+  }
+    .photobutton img {
+        width: 61px;
+        height: 52px;
+        border: 1px solid #0057ff;
+        border-radius: 10px;
+        
+    }
+
+    .head {
+        display: flex;
+        flex-direction: column-reverse;
+        margin-bottom: 24px;
+    }
+    .names {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    
+      
+    .form {
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .bithday {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    
+    .input {
+      height: 52px;
+      border-radius: 10px;
+      margin: 24px 15px 0 15px;
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #dfdfdf;
+      border-radius: 10px;
+      margin: 0 auto;
+      font-size: 18px;
+      font-weight: 400;
+    }
+    
+    .input::placeholder {
+      color: #b1b1b1;
+    }
+    .bithday-input {
+      width: 100%;
+    }
+    
+    .profile-input {
+      position: relative;
+      color: #555555;
+      margin-bottom: 16px;
+    }
+    
+    .label {
+      display: none;
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      color: #b1b1b1;
+    }
+    
+    .input:focus ~ .label {
+      display: block;
+      transform: translateY(-0.65rem) translateX(0.15rem);
+      color: #b1b1b1;
+      font-size: 9px;
+      font-weight: 400;
+    }
+    
+    .input.invalid {
+      background-color: #ffdeec;
+      border: 1px solid #ff97c3;
+    }
+    
+    .input__message {
+      display: none;
+    
+      font-size: 9px;
+      font-weight: 400;
+      color: #dc3545;
+      text-align: left;
+    }
+    
+    .input.invalid ~ .input__message {
+      display: block;
+      padding: 0 16px;
+    }
+    
+    .error .input {
+      border-color: red;
+    }
+    .error-label {
+      display: block;
+      margin-bottom: 10px;
+      color: red;
+      text-align: left;
+    }
+  
+    .success-label {
+      display: block;
+      margin-bottom: 10px;
+      color: green;
+      text-align: left;
+    }
+  
+    .button {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #0057ff;
+      border-radius: 10px;
+      
+      text-align: center;
+      font-size: 18px;
+      font-family: "Lato", Arial, sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      cursor: pointer;
+      color: #0057ff;
+      background-color: #ffffff;
+      transition: 0.15s;
+    }
+    
+    .button:hover {
+      color: #ffffff;
+      background-color: #0057ff;
+      font-weight: 700;
+    }
+    @media screen and (width > 1279px) {
+      .wrapper {
+        width: 600px;
+        padding: 16px 24px 0 0;
+      }
+      .names {
+        
+        width: 400px;
+    }
+    .photobutton {
+      padding-top: 40px;
+    margin-left: 36px;
+      margin-bottom: 0;
+    }
+    .head {
+      display: flex;
+      flex-direction: row;
+  }
+  .bithday {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .bithday-input {
+    width: 270px;
+  }
+  .button {
+    width: 180px;
+  }
+}

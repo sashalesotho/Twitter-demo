@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import styles from "./feed-styles/FeedHeader.module.css";
 const FeedHeader = () => {
     return (
@@ -12,8 +13,11 @@ const FeedHeader = () => {
                     <img className={styles.pic} src="images/user.svg" alt="user" />
                         Профиль</li>
                     <li>
-                    <img className={styles.pic} src="images/adjust.svg" alt="adjust" />
-                        Настройки</li>
+                        <Link to="settings/profile">
+                        <img className={styles.pic} src="images/adjust.svg" alt="adjust" />
+                        Настройки
+                        </Link>
+                    </li>
                 </ul>
             </nav>
             <div className={styles.logo}>
