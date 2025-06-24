@@ -9,11 +9,11 @@ const app = express();
 const port = 3000;
 const { Client } = pg;
 const client = new Client({
-  host: 'dpg-d07bo8s9c44c739rqccg-a.oregon-postgres.render.com',
+  host: 'dpg-d0sde1idbo4c73evp1sg-a.oregon-postgres.render.com',
   port: '5432',
-  user: 'twitter2804_user',
-  password: 'JP4oN2Ql2oI7kOh1UkrjEevAitds5ulW',
-  database: 'twitter2804',
+  user: 'twitter3005_user',
+  password: 'Yx5XcPdSciWp8uVHlBpEAroHLAS5xlUs',
+  database: 'twitter3005',
   ssl: true,
 });
 
@@ -249,6 +249,51 @@ app.get('/feed', async (req, res) => {
   }
 
   return res.send('feed');
+});
+
+app.put('/settings/password', async (req, res) => {
+  const { token } = req.cookies;
+  const { oldPassword, newPassword } = req.body;
+
+  if (!token) {
+    return res.status(401).json({ error: 'Требуется авторизация' });
+  }
+
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({ error: 'Все поля обязательны' });
+  }
+
+  try {
+    const session = await client.query(
+      `SELECT users.id, users.password FROM sessions 
+       JOIN users ON sessions.user_id = users.id 
+       WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'`,
+      [token],
+    );
+
+    if (session.rows.length === 0) {
+      return res.status(401).json({ error: 'Сессия не найдена или истекла' });
+    }
+
+    const user = session.rows[0];
+    const match = await bcrypt.compare(oldPassword, user.password);
+
+    if (!match) {
+      return res.status(400).json({ error: 'Неверный текущий пароль' });
+    }
+
+    const hashNewPassword = await bcrypt.hash(newPassword, 10);
+
+    await client.query(
+      'UPDATE users SET password = $1 WHERE id = $2',
+      [hashNewPassword, user.id],
+    );
+
+    return res.status(200).json({ message: 'Пароль успешно обновлён' });
+  } catch (error) {
+    console.error('Ошибка при смене пароля:', error);
+    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
 });
 
 app.listen(port, () => {

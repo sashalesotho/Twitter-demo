@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import styles from '../feed/feed-styles/MobileFooter.module.css';
 
 const MobileFooter = () => {
@@ -6,13 +7,21 @@ const MobileFooter = () => {
               <nav>
                 <ul className={styles.list}>
                     <li>
-                    <img className={styles.pic} src="images/home.svg" alt="home" />
+                        <Link to="/feed">
+                        <img className={styles.pic} src="images/home.svg" alt="home" />
+                        </Link>
+                    
                     </li>
                     <li>
-                    <img className={styles.pic} src="images/user.svg" alt="user" />
+                        <Link to="/profile">
+                        <img className={styles.pic} src="images/user.svg" alt="user" />
+                        </Link>
+                    
                     </li>
                     <li>
-                    <img className={styles.pic} src="images/adjust.svg" alt="adjust" />
+                        <Link to="settings/profile">
+                        <img className={styles.pic} src="images/adjust.svg" alt="adjust" />
+                        </Link>
                     </li>
                     <li>
                     <img className={styles.avatar} src="images/alexander.png" alt="avatar" />
