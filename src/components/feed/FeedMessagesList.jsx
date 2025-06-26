@@ -35,7 +35,7 @@ const FeedMessagesList = () => {
       <Message
       key={el.id || `message-${index}`}
       id={el.id}
-      picUrl={el.picurl || "images/anonavatar.svg"}
+      picUrl={el.avatar_url || "images/anonavatar.svg"}
       name={el.name || 'аноним'}
       mail={el.name || '@anon'}
       date={el.date}
