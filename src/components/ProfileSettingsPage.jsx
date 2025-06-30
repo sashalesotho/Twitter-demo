@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateProfile } from '../../store/userSlice';
+import { Widget } from '@uploadcare/react-widget';
+
 import styles from '../styles/ProfileSettingsPage.module.css';
 
 const ProfileSettingsPage = () => {
@@ -13,6 +15,8 @@ const ProfileSettingsPage = () => {
   const [geo, setGeo] = useState(user?.geo || '');
   const [site, setSite] = useState(user?.site || '');
   const [birthday, setBirthday] = useState(user?.birthday || '');
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
+
 
 
   const [formError, setFormError] = useState('');
@@ -25,7 +29,7 @@ const ProfileSettingsPage = () => {
     }
 
     try {
-      await dispatch(updateProfile({ username, nickname, bio, geo, site, birthday })).unwrap();
+      await dispatch(updateProfile({ username, nickname, bio, geo, site, birthday, avatarUrl })).unwrap();
       setFormError('');
     } catch (err) {
       setFormError(err.error || 'Ошибка обновления');
@@ -62,6 +66,14 @@ const ProfileSettingsPage = () => {
           </div>
           <div className={styles.photobutton}>
           <img src="../../public/images/addphoto.svg" alt="" />
+          <div className={styles['profile-input']}>
+  <Widget
+    publicKey="d45be7bd5518f8ea3cce"
+    onChange={(fileInfo) => setAvatarUrl(fileInfo.cdnUrl)}
+  />
+  <label className={styles.label}>Загрузить аватар</label>
+</div>
+
           </div>
         
         </div>

@@ -25,13 +25,17 @@ export const updatePassword = createAsyncThunk(
 
 export const updateProfile = createAsyncThunk(
   'user/updateProfile',
-  async ({ username, bio }, { rejectWithValue }) => {
+  async ({
+    username, nickname, bio, geo, site, birthday, avatarUrl,
+  }, { rejectWithValue }) => {
     try {
       const res = await fetch('/settings/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ username, bio }),
+        body: JSON.stringify({
+          username, nickname, bio, geo, site, birthday, avatarUrl,
+        }),
       });
 
       if (!res.ok) {
@@ -55,7 +59,11 @@ const userSlice = createSlice({
     passwordChangeStatus: 'idle',
     passwordChangeError: null,
   },
-  reducers: {},
+  reducers: {
+    setUser(state, action) {
+      state.user = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(updateProfile.pending, (state) => {
@@ -83,5 +91,7 @@ const userSlice = createSlice({
       });
   },
 });
+
+export const { setUser } = userSlice.actions;
 
 export default userSlice.reducer;
