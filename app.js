@@ -370,7 +370,6 @@ app.put('/settings/password', async (req, res) => {
       return res.status(400).json({ error: 'Пароль слишком короткий' });
     }
 
-
     const samePassword = await bcrypt.compare(newPassword, user.password);
     if (samePassword) {
       return res.status(400).json({ error: 'Новый пароль должен отличаться от текущего' });
@@ -383,15 +382,12 @@ app.put('/settings/password', async (req, res) => {
       return res.status(400).json({ error: 'Сменить пароль можно только раз в сутки' });
     }
 
-
     const hashNewPassword = await bcrypt.hash(newPassword, 10);
 
     await client.query(
       'UPDATE users SET password = $1, last_password_change = NOW()  WHERE id = $2',
       [hashNewPassword, user.id],
     );
-
-    
 
     return res.status(200).json({ message: 'Пароль успешно обновлён' });
   } catch (error) {
