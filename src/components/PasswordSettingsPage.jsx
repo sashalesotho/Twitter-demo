@@ -9,22 +9,30 @@ const PasswordSettingsPage = () => {
 
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [newPasswordAgain, setNewPasswordAgain] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [formError, setFormError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (newPassword !== newPasswordAgain) {
+    if (newPassword !== confirmPassword) {
       return setFormError('Пароли не совпадают');
     }
 
+    if (newPassword.length < 8) {
+      return setFormError('Пароль должен быть не менее 8 символов');
+    }
+    if (newPassword === oldPassword) {
+      return setFormError('Новый пароль должен отличаться от текущего');
+    }
+    
+
     try {
-      await dispatch(updatePassword({ oldPassword, newPassword })).unwrap();
+      await dispatch(updatePassword({ oldPassword, newPassword, confirmPassword })).unwrap();
     setFormError('');
     setOldPassword('');
     setNewPassword('');
-    setNewPasswordAgain('');
+    setConfirmPassword('');
     } catch (err) {
       setFormError(err.error || 'Ошибка при смене пароля');
     }
@@ -59,8 +67,8 @@ const PasswordSettingsPage = () => {
         <div className={styles['profile-input']}>
           <input
           type="password"
-            value={newPasswordAgain}
-            onChange={(e) => setNewPasswordAgain(e.target.value)}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             className={styles.input}
           />
           <label className={styles.label}>

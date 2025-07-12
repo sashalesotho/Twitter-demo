@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { addPost } from "../../../store/postsSlice";
-import styles from "./feed-styles/NewMessage.module.css";
-import postSize from "../../../assets/post_size";
+import { addPost } from "../../store/postsSlice";
+import styles from "../styles/NewMessage.module.css";
+import postSize from "../../assets/post_size";
 import { Widget } from '@uploadcare/react-widget';
 
 const NewMessage = ({ active, setActive }) => {

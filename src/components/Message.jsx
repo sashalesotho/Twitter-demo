@@ -28,15 +28,15 @@ return (
         </div>
       <div className={styles.stats}>
       <div className={styles["stats__item"]}>
-        <img src="images/reply.svg" alt="ответить" />
+        <img src="../images/reply.svg" alt="ответить" />
         <p>{quantityReposts}</p>
       </div>
       <div className={styles["stats__item"]}>
-        <img src="images/heart.svg" alt="сердце" />
+        <img src="../images/heart.svg" alt="сердце" />
         <p>{quantityLike}</p>
       </div>
       <div className={styles["stats__item"]}>
-        <img src="images/export.svg" alt="поделиться" />
+        <img src="../images/export.svg" alt="поделиться" />
         <p>{quantityShare}</p>
       </div>
       </div>

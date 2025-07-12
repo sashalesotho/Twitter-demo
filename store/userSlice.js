@@ -2,13 +2,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 export const updatePassword = createAsyncThunk(
   'user/updatePassword',
-  async ({ oldPassword, newPassword }, { rejectWithValue }) => {
+  async ({ oldPassword, newPassword, confirmPassword }, { rejectWithValue }) => {
     try {
       const res = await fetch('/settings/password', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ oldPassword, newPassword }),
+        body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
       });
 
       if (!res.ok) {
