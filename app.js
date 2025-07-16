@@ -9,11 +9,11 @@ const app = express();
 const port = 3000;
 const { Client } = pg;
 const client = new Client({
-  host: 'dpg-d0sde1idbo4c73evp1sg-a.oregon-postgres.render.com',
+  host: 'dpg-d1i3fb6mcj7s73ei4ji0-a.oregon-postgres.render.com',
   port: '5432',
-  user: 'twitter3005_user',
-  password: 'Yx5XcPdSciWp8uVHlBpEAroHLAS5xlUs',
-  database: 'twitter3005',
+  user: 'twitter0107_user',
+  password: 'YpQKM62UKGfUDIJ8S2P9xlFQVIDPFH78',
+  database: 'twitter0107',
   ssl: true,
 });
 
@@ -334,7 +334,7 @@ app.put('/settings/profile', async (req, res) => {
 
 app.put('/settings/password', async (req, res) => {
   const { token } = req.cookies;
-  const { oldPassword, newPassword } = req.body;
+  const { oldPassword, newPassword, confirmPassword } = req.body;
 
   if (!token) {
     return res.status(401).json({ error: 'Требуется авторизация' });
@@ -346,7 +346,7 @@ app.put('/settings/password', async (req, res) => {
 
   try {
     const session = await client.query(
-      `SELECT users.id, users.password FROM sessions 
+      `SELECT users.id, users.password, users.last_password_change FROM sessions 
        JOIN users ON sessions.user_id = users.id 
        WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'`,
       [token],
@@ -362,11 +362,30 @@ app.put('/settings/password', async (req, res) => {
     if (!match) {
       return res.status(400).json({ error: 'Неверный текущий пароль' });
     }
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: 'Пароли не совпадают' });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'Пароль слишком короткий' });
+    }
+
+    const samePassword = await bcrypt.compare(newPassword, user.password);
+    if (samePassword) {
+      return res.status(400).json({ error: 'Новый пароль должен отличаться от текущего' });
+    }
+
+    const now = new Date();
+    const lastChange = new Date(user.last_password_change);
+    const diffInHours = (now - lastChange) / (1000 * 60 * 60);
+    if (diffInHours < 24) {
+      return res.status(400).json({ error: 'Сменить пароль можно только раз в сутки' });
+    }
 
     const hashNewPassword = await bcrypt.hash(newPassword, 10);
 
     await client.query(
-      'UPDATE users SET password = $1 WHERE id = $2',
+      'UPDATE users SET password = $1, last_password_change = NOW()  WHERE id = $2',
       [hashNewPassword, user.id],
     );
 

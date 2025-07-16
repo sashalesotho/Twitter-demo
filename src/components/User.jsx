@@ -1,11 +1,11 @@
-import styles from './feed-styles/User.module.css';
+import styles from '../styles/User.module.css';
 
 const User = () => {
     return (
         <div className={styles.userContainer}>
             <div className={styles.top}>
             <div className={styles.avatarWrapper}>
-        <img className={styles.avatar} src="images/alexander.png" alt="User Avatar" />
+        <img className={styles.avatar} src="../../images/alexander.png" alt="User Avatar" />
       </div>
       <div className={styles.userInfo}>
         <h3 className={styles.userName}>Александр</h3>

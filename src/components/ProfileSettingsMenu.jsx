@@ -1,7 +1,8 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import styles from '../styles/ProfileSettingsMenu.module.css';
-import FeedHeader from './feed/FeedHeader';
-import MobileHeader from './feed/MobileHeader';
+import FeedHeader from './FeedHeader';
+import MobileHeader from './MobileHeader';
+import MobileFooter from './MobileFooter';
 
 const ProfileSettingsMenu = () => {
   return (
@@ -20,23 +21,24 @@ const ProfileSettingsMenu = () => {
           <ul className={styles.menu}>
           <h1 className={styles.title}>Настройки</h1>
             <li>
-              <NavLink to="profile" className={({ isActive }) => isActive ? styles.active : ''}>
+              <NavLink to="/settings/profile" className={({ isActive }) => isActive ? styles.active : ''}>
                 Настройки профиля
               </NavLink>
             </li>
             <li>
-              <NavLink to="password" className={({ isActive }) => isActive ? styles.active : ''}>
+              <NavLink to="/settings/password" className={({ isActive }) => isActive ? styles.active : ''}>
                 Сменить пароль
               </NavLink>
             </li>
             <li>
-              <NavLink to="email" className={({ isActive }) => isActive ? styles.active : ''}>
+              <NavLink to="/settings/email" className={({ isActive }) => isActive ? styles.active : ''}>
                 Сменить e-mail
               </NavLink>
             </li>
           </ul>
         </aside>
       </div>
+      <MobileFooter />
     </div>
    
     

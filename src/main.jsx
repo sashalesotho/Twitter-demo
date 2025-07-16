@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 import store from '../store/index.js'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import App from './App.jsx'
-import Feed from './components/feed/FeedPage.jsx'
+import Feed from './components/FeedPage.jsx'
 import './index.css'
 import ProfilePage from './components/ProfilePage.jsx'
 import FollowingPage from './components/FollowingPage.jsx'
@@ -23,7 +23,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Routes>
           <Route path="/" element={<App />}/>
           <Route path="/feed" element={<Feed />}/>
-          <Route path="/feed/settings" element={<ProfileSettingsMenu />}>
+          <Route path="/settings" element={<ProfileSettingsMenu />}>
             <Route path="profile" element={<ProfileSettingsPage />} />
             <Route path="password" element={<PasswordSettingsPage />} />
             <Route path="email" element={<EmailSettingsPage />} />

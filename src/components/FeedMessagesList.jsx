@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPosts } from "../../../store/postsSlice";
-import styles from "./feed-styles/FeedMessagesList.module.css";
-import MessageLoader from "../MessageLoader";
-import Message from "../Message";
+import { fetchPosts } from "../../store/postsSlice";
+import styles from "../styles/FeedMessagesList.module.css";
+import MessageLoader from "./MessageLoader";
+import Message from "./Message";
 
 const FeedMessagesList = () => {
   const dispatch = useDispatch();
@@ -35,7 +35,7 @@ const FeedMessagesList = () => {
       <Message
       key={el.id || `message-${index}`}
       id={el.id}
-      picUrl={el.avatar_url || "images/anonavatar.svg"}
+      picUrl={el.avatar_url || "/images/anonavatar.svg"}
       name={el.name || 'аноним'}
       mail={el.name || '@anon'}
       date={el.date}

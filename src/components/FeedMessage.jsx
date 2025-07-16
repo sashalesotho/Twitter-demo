@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addPost } from "../../../store/postsSlice";
-import postSize from "../../../assets/post_size";
+import { addPost } from "../../store/postsSlice";
+import postSize from "../../assets/post_size";
 import { Widget } from '@uploadcare/react-widget';
-import styles from "./feed-styles/FeedMessage.module.css";
+import styles from "../styles/FeedMessage.module.css";
 
 const FeedMessage = () => {
 

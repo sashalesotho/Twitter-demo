@@ -65,7 +65,7 @@ const ProfileSettingsPage = () => {
         </div>
           </div>
           <div className={styles.photobutton}>
-          <img src="../../public/images/addphoto.svg" alt="" />
+          <img src="../images/addphoto.svg" alt="" />
           <div className={styles['profile-input']}>
   <Widget
     publicKey="d45be7bd5518f8ea3cce"
