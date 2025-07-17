@@ -1,5 +1,28 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
+export const updateEmail = createAsyncThunk(
+  'user/updateEmail',
+  async ({ newEmail, password }, { rejectWithValue }) => {
+    try {
+      const res = await fetch('/settings/email', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ newEmail, password }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        return rejectWithValue(data.error || 'Ошибка');
+      }
+
+      return data;
+    } catch (err) {
+      return rejectWithValue('Сетевая ошибка');
+    }
+  },
+);
+
 export const updatePassword = createAsyncThunk(
   'user/updatePassword',
   async ({ oldPassword, newPassword, confirmPassword }, { rejectWithValue }) => {
@@ -88,6 +111,20 @@ const userSlice = createSlice({
       .addCase(updatePassword.rejected, (state, action) => {
         state.passwordChangeStatus = 'failed';
         state.passwordChangeError = action.payload?.error || 'Ошибка';
+      })
+      .addCase(updateEmail.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(updateEmail.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        if (state.user) {
+          state.user.email = action.payload.email;
+        }
+      })
+      .addCase(updateEmail.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload || 'Ошибка';
       });
   },
 });
