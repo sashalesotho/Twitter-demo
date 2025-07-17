@@ -396,6 +396,56 @@ app.put('/settings/password', async (req, res) => {
   }
 });
 
+app.put('/settings/email', async (req, res) => {
+  const { token } = req.cookies;
+  const { newEmail, password } = req.body;
+
+  if (!token || !newEmail || !password) {
+    return res.status(400).json({ error: 'Все поля обязательны' });
+  }
+
+  // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // if (!emailRegex.test(newEmail)) {
+  //   return res.status(400).json({ error: 'Неверный формат email' });
+  // }
+
+  try {
+    const session = await client.query(`
+      SELECT users.id, users.email, users.password FROM sessions
+      JOIN users ON sessions.user_id = users.id
+      WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'
+    `, [token]);
+
+    if (session.rows.length === 0) {
+      return res.status(401).json({ error: 'Сессия не найдена или истекла' });
+    }
+
+    const user = session.rows[0];
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Неверный пароль' });
+    }
+
+    if (user.email === newEmail) {
+      return res.status(400).json({ error: 'Email совпадает с текущим' });
+    }
+
+    const existing = await client.query('SELECT id FROM users WHERE email = $1', [newEmail]);
+    if (existing.rows.length > 0) {
+      return res.status(400).json({ error: 'Email уже используется' });
+    }
+
+    await client.query('UPDATE users SET email = $1 WHERE id = $2', [newEmail, user.id]);
+    res.cookie('email', newEmail, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+
+    return res.status(200).json({ email: newEmail });
+  } catch (err) {
+    console.error('Ошибка при смене email:', err);
+    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

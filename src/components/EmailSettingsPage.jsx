@@ -1,38 +1,50 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateProfile } from '../../store/userSlice';
+import { updateEmail } from '../../store/userSlice';
+import validateEmail from '../../assets/is_valid_email.js';
 import styles from '../styles/ProfileSettingsPage.module.css';
 
 const EmailSettingsPage = () => {
+  const currentEmail = useSelector((state) => state.user.email);
   const dispatch = useDispatch();
   const { status, error, user } = useSelector((state) => state.user);
 
-  const [newEmail, setNewEmail] = useState(user?.email || '');
-  const [password, setPassword] = useState(user?.password || '');
-  
+  const [newEmail, setNewEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-
+  const [success, setSuccess] = useState('');
   const [formError, setFormError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError('');
+    setSuccess('');
 
-    // if (newPassword !== newPasswordAgain) {
-    //   return setFormError('Пароли не совпадают');
-    // }
-
+    if (!validateEmail(newEmail)) {
+      return setFormError('Некорректный формат email');
+    }
+    if (newEmail === currentEmail) {
+      return setFormError('Новый email совпадает с текущим');
+    }
+    if (!password) {
+      return setFormError('Введите пароль для подтверждения');
+    }
     try {
-      
+      const result = await dispatch(updateEmail({ newEmail, password })).unwrap();
+      setSuccess('Email успешно обновлён');
+      setNewEmail('');
+      setPassword('');
     } catch (err) {
-      
+      setFormError(err.message || 'Ошибка при смене email');
     }
   };
+
     return (
       <div className={styles.wrapper}>
       <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles['profile-input']}>
             <input
-            type="text"
+            type="email"
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
             className={styles.input}
@@ -43,6 +55,7 @@ const EmailSettingsPage = () => {
           
             <div className={styles['profile-input']}>
           <input
+          type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={styles.input}
@@ -54,7 +67,7 @@ const EmailSettingsPage = () => {
         
         {formError && <p className={styles['error-label']}>{formError}</p>}
         {status === 'loading' && <p className={styles.info}>Сохраняем...</p>}
-        {status === 'succeeded' && <p className={styles['success-label']}>Профиль обновлён</p>}
+        {status === 'success' && <p className={styles['success-label']}>Email успешно обновлён</p>}
 
         <button type="submit" className={styles.button}>Сохранить</button>
       </form>
