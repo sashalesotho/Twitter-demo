@@ -12,8 +12,10 @@ const FeedHeader = () => {
                     
                     </li>
                     <li>
+                    <Link to="/profile">
                     <img className={styles.pic} src="../../images/user.svg" alt="user" />
-                        Профиль</li>
+                        Профиль
+                    </Link></li>
                     <li>
                         <Link to="/settings/profile">
                         <img className={styles.pic} src="../../images/adjust.svg" alt="adjust" />

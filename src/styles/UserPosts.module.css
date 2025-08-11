@@ -1,0 +1,5 @@
+@media screen and (width > 1279px) {
+    .feed {
+        border-radius: 10px;
+    }
+}
