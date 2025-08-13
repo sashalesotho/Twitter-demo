@@ -1,0 +1,19 @@
+.side {
+    display: none;
+}
+@media screen and (width > 1279px) {
+    .container {
+        margin: 0 auto;
+        width: 943px;
+        display: flex;
+        padding: 24px;
+        
+       
+    }
+    .side {
+        display: flex;
+        flex-direction: column;
+    }
+   
+    
+}

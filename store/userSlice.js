@@ -1,5 +1,25 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
+export const fetchCurrentUser = createAsyncThunk(
+  'user/fetchCurrentUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await fetch('http://localhost:3000/me', {
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        throw new Error(`Ошибка ${res.status}`);
+      }
+
+      const data = await res.json();
+      return data; // { profile: {...}, posts: [...] }
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
 export const updateEmail = createAsyncThunk(
   'user/updateEmail',
   async ({ newEmail, password }, { rejectWithValue }) => {
@@ -77,6 +97,9 @@ const userSlice = createSlice({
   name: 'user',
   initialState: {
     user: null,
+    profile: null,
+    posts: [],
+    loading: false,
     status: 'idle',
     error: null,
     passwordChangeStatus: 'idle',
@@ -125,6 +148,19 @@ const userSlice = createSlice({
       .addCase(updateEmail.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload || 'Ошибка';
+      })
+      .addCase(fetchCurrentUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profile = action.payload.profile;
+        state.posts = action.payload.posts;
+      })
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

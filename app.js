@@ -9,11 +9,11 @@ const app = express();
 const port = 3000;
 const { Client } = pg;
 const client = new Client({
-  host: 'dpg-d1i3fb6mcj7s73ei4ji0-a.oregon-postgres.render.com',
+  host: 'dpg-d26jghp5pdvs73a6fq1g-a.oregon-postgres.render.com',
   port: '5432',
-  user: 'twitter0107_user',
-  password: 'YpQKM62UKGfUDIJ8S2P9xlFQVIDPFH78',
-  database: 'twitter0107',
+  user: 'twitter0208_user',
+  password: '2aFpntwKFN0wddnWLosexQjNsZAhTAGz',
+  database: 'twitter0208',
   ssl: true,
 });
 
@@ -35,8 +35,8 @@ app.get('/posts', async (req, res) => {
     const result = await client.query(`
       SELECT 
         posts.id,
-        posts.name,
-        posts.mail,
+        posts.username,
+        posts.email,
         posts.message,
         posts.imgmessage,
         posts.date,
@@ -68,7 +68,7 @@ app.post('/posts', async (req, res) => {
   try {
     const session = await client.query(
       `SELECT users.id, users.email FROM sessions 
-       JOIN users ON sessions.user_id = users.id 
+       JOIN users ON sessions.userid = users.id 
        WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'`,
       [token],
     );
@@ -87,7 +87,7 @@ app.post('/posts', async (req, res) => {
     const date = new Date();
 
     const result = await client.query(
-      `INSERT INTO posts (id, userId, name, mail, message, imgmessage, date) 
+      `INSERT INTO posts (id, userId, username, email, message, imgmessage, date) 
        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
       [id, user.id, user.email.split('@')[0], user.email, message, image || '', date],
     );
@@ -120,8 +120,8 @@ app.put('/posts/:id.json', async (req, res) => {
   const postId = req.params.id;
   const {
     userId,
-    name,
-    mail,
+    username,
+    email,
     message,
     imgMessage,
     date,
@@ -134,12 +134,12 @@ app.put('/posts/:id.json', async (req, res) => {
       return res.status(400).json({ error: 'content error' });
     }
     const result = await client.query(
-      'UPDATE posts SET userId = $2, name = $3, mail = $4, message = $5, imgMessage = $6, date = $7, quantityReposts = $8, quantityLike = $9,  quantityShare = $10 WHERE id = $1 RETURNING *',
+      'UPDATE posts SET userId = $2, username = $3, email = $4, message = $5, imgMessage = $6, date = $7, quantityReposts = $8, quantityLike = $9,  quantityShare = $10 WHERE id = $1 RETURNING *',
       [
         postId,
         userId,
-        name,
-        mail,
+        username,
+        email,
         message,
         imgMessage,
         date,
@@ -179,7 +179,7 @@ app.post('/createUser', async (req, res) => {
       [email, hashPassword],
     );
     console.log('user created', createUser.rows);
-    await client.query('INSERT INTO sessions (user_id, token) VALUES ($1, $2) RETURNING *', [createUser.rows[0].id, token]);
+    await client.query('INSERT INTO sessions (userid, token) VALUES ($1, $2) RETURNING *', [createUser.rows[0].id, token]);
     res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.cookie('email', email, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
@@ -199,7 +199,7 @@ app.post('/login', async (req, res) => {
       const user = result.rows[0];
       const match = await bcrypt.compare(password, user.password);
       if (match) {
-        await client.query('INSERT INTO sessions (user_id, token) VALUES ($1, $2) RETURNING *', [user.id, token]);
+        await client.query('INSERT INTO sessions (userid, token) VALUES ($1, $2) RETURNING *', [user.id, token]);
         res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
         res.cookie('email', email, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
         return res.status(200).json({ text: 'login successful' });
@@ -281,7 +281,7 @@ app.put('/settings/profile', async (req, res) => {
   try {
     const session = await client.query(`
       SELECT users.id FROM sessions
-      JOIN users ON sessions.user_id = users.id
+      JOIN users ON sessions.userid = users.id
       WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'
     `, [token]);
 
@@ -347,7 +347,7 @@ app.put('/settings/password', async (req, res) => {
   try {
     const session = await client.query(
       `SELECT users.id, users.password, users.last_password_change FROM sessions 
-       JOIN users ON sessions.user_id = users.id 
+       JOIN users ON sessions.userid = users.id 
        WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'`,
       [token],
     );
@@ -412,7 +412,7 @@ app.put('/settings/email', async (req, res) => {
   try {
     const session = await client.query(`
       SELECT users.id, users.email, users.password FROM sessions
-      JOIN users ON sessions.user_id = users.id
+      JOIN users ON sessions.userid = users.id
       WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'
     `, [token]);
 
@@ -442,6 +442,56 @@ app.put('/settings/email', async (req, res) => {
     return res.status(200).json({ email: newEmail });
   } catch (err) {
     console.error('Ошибка при смене email:', err);
+    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+app.get('/me', async (req, res) => {
+  const { token } = req.cookies;
+
+  if (!token) {
+    return res.status(401).json({ error: 'Необходима авторизация' });
+  }
+
+  try {
+    const sessionResult = await client.query(
+      `SELECT users.id
+       FROM sessions
+       JOIN users ON sessions.userid = users.id
+       WHERE sessions.token = $1
+         AND sessions.created_at > NOW() - INTERVAL '7 days'`,
+      [token],
+    );
+
+    if (sessionResult.rows.length === 0) {
+      return res.status(401).json({ error: 'Неверный или просроченный токен' });
+    }
+
+    const userId = sessionResult.rows[0].id;
+
+    const userResult = await client.query(
+      `SELECT id, email, avatar_url, username, nickname, bio, geo, site, birthday, last_password_change, background
+       FROM users
+       WHERE id = $1`,
+      [userId],
+    );
+
+    const postsResult = await client.query(
+      `SELECT p.id, p.message, p.imgmessage, p.date,
+              u.username, u.nickname, u.avatar_url
+       FROM posts p
+       JOIN users u ON p.userid = u.id
+       WHERE p.userid = $1
+       ORDER BY p.date DESC`,
+      [userId],
+    );
+
+    return res.json({
+      profile: userResult.rows[0],
+      posts: postsResult.rows,
+    });
+  } catch (error) {
+    console.error('Ошибка при получении профиля и постов:', error);
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 });

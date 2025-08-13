@@ -202,7 +202,7 @@ svg {
     .handler {
       height: 20px;
       width: 20px;
-      background: url(../../public/images/Vector.svg);
+      background: url(/images/Vector.svg);
       background-repeat: no-repeat;
       margin: 5px 90%;
       border-radius: 0;
