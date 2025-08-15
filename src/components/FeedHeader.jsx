@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import styles from "../styles/FeedHeader.module.css";
 const FeedHeader = () => {
+    const avatarUrl = useSelector(state => state.user.profile?.avatar_url);
+
     return (
         <header className={styles.header}>
             <nav>
@@ -29,7 +32,11 @@ const FeedHeader = () => {
             </div>
             
             <div className={styles.avatar}>
-                <img src="../../images/alexander.png" alt="avatar" />
+            {avatarUrl ? (
+          <img src={avatarUrl} alt="аватар" />
+        ) : (
+          <img src="/public/images/anonavatar.svg" alt="аватар" />
+        )}
             </div>
 
         </header>

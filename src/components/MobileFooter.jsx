@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import styles from '../styles/MobileFooter.module.css';
 
 const MobileFooter = () => {
+    const avatarUrl = useSelector(state => state.user.profile?.avatar_url);
+
     return (
         <div className={styles.footer}>
               <nav>
@@ -24,8 +27,11 @@ const MobileFooter = () => {
                         </Link>
                     </li>
                     <li>
-                    <img className={styles.avatar} src="../../images/alexander.png" alt="avatar" />
-                    </li>
+                    {avatarUrl ? (
+          <img className={styles.avatar} src={avatarUrl} alt="аватар" />
+        ) : (
+          <img className={styles.avatar} src="/public/images/anonavatar.svg" alt="аватар" />
+        )}</li>
                 </ul>
             </nav>
         </div>
