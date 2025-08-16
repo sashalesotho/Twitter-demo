@@ -118,6 +118,15 @@ const userSlice = createSlice({
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        if (state.profile) {
+          state.profile = {
+            ...state.profile,
+            ...action.payload,
+          };
+        } else {
+          state.profile = action.payload;
+        }
+
         state.user = action.payload;
       })
       .addCase(updateProfile.rejected, (state, action) => {
@@ -157,6 +166,7 @@ const userSlice = createSlice({
         state.loading = false;
         state.profile = action.payload.profile;
         state.posts = action.payload.posts;
+        state.user = action.payload.profile;
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.loading = false;
