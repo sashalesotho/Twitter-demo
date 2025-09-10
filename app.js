@@ -4,35 +4,88 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
 const port = 3000;
-const { Client } = pg;
-const client = new Client({
-  host: 'dpg-d26jghp5pdvs73a6fq1g-a.oregon-postgres.render.com',
+const { Pool } = pg;
+const pool = new Pool({
+  host: 'dpg-d2rkp38gjchc73aoud90-a.oregon-postgres.render.com',
   port: '5432',
-  user: 'twitter0208_user',
-  password: '2aFpntwKFN0wddnWLosexQjNsZAhTAGz',
-  database: 'twitter0208',
-  ssl: true,
+  user: 'twitter0209_user',
+  password: 'QBVSEZOsncY9xLYNIwUBvrZ7kxDKx0Lr',
+  database: 'twitter0209',
+  ssl: {
+    rejectUnauthorized: false 
+  },
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
 
-client
-  .connect()
-  .then(() => console.log('Connected to database'))
-  .catch((err) => console.error('Connection error', err.stack));
+// pool.on('error', (err) => {
+//   console.error('Unexpected error on idle client', err);
+//   process.exit(-1);
+// });
 
-app.use(express.static('public'));
+
+
+// app.use(express.static('public'));
+
+
+
+app.use(async (req, res, next) => {
+  try {
+    const client = await pool.connect();
+    req.dbClient = client;
+    
+   
+    res.on('finish', () => {
+      if (req.dbClient) {
+        req.dbClient.release();
+        console.log('Connection released');
+      }
+    });
+    
+    next();
+  } catch (error) {
+    console.error('Database connection error:', error);
+    res.status(500).json({ error: 'Database connection failed' });
+  }
+});
+
+
+// client
+//   .connect()
+//   .then(() => console.log('Connected to database'))
+//   .catch((err) => console.error('Connection error', err.stack));
+
+
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true,
-}));
+  }));
 app.use(express.json());
 app.use(cookieParser());
 
+async function isValidToken(dbClient, token) {
+  try {
+    const result = await dbClient.query(
+      "SELECT * FROM sessions WHERE token = $1 AND created_at > NOW() - INTERVAL '7 days'",
+      [token],
+    );
+    return result.rowCount > 0;
+  } catch (err) {
+    console.error('Error checking token:', err);
+    return false;
+  }
+}
+
+
 app.get('/posts', async (req, res) => {
   try {
-    const result = await client.query(`
+    const result = await req.dbClient.query(`
       SELECT 
         posts.id,
         posts.username,
@@ -48,7 +101,6 @@ app.get('/posts', async (req, res) => {
       LEFT JOIN users ON posts.userid = users.id
       ORDER BY posts.date DESC
     `);
-
     res.json(result.rows);
   } catch (error) {
     console.error('Ошибка при получении постов:', error);
@@ -66,7 +118,7 @@ app.post('/posts', async (req, res) => {
   }
 
   try {
-    const session = await client.query(
+    const session = await req.dbClient.query(
       `SELECT users.id, users.email FROM sessions 
        JOIN users ON sessions.userid = users.id 
        WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'`,
@@ -86,7 +138,7 @@ app.post('/posts', async (req, res) => {
     const id = crypto.randomUUID();
     const date = new Date();
 
-    const result = await client.query(
+    const result = await req.dbClient.query(
       `INSERT INTO posts (id, userId, username, email, message, imgmessage, date) 
        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
       [id, user.id, user.email.split('@')[0], user.email, message, image || '', date],
@@ -103,7 +155,7 @@ app.delete('/posts/:id.json', async (req, res) => {
   const postId = req.params.id;
 
   try {
-    const result = await client.query('DELETE FROM posts WHERE id = $1', [
+    const result = await req.dbClient.query('DELETE FROM posts WHERE id = $1', [
       postId,
     ]);
     if (result.rowCount === 0) {
@@ -133,7 +185,7 @@ app.put('/posts/:id.json', async (req, res) => {
     if (!req.body) {
       return res.status(400).json({ error: 'content error' });
     }
-    const result = await client.query(
+    const result = await req.dbClient.query(
       'UPDATE posts SET userId = $2, username = $3, email = $4, message = $5, imgMessage = $6, date = $7, quantityReposts = $8, quantityLike = $9,  quantityShare = $10 WHERE id = $1 RETURNING *',
       [
         postId,
@@ -165,7 +217,7 @@ app.post('/createUser', async (req, res) => {
     return res.status(400).json({ error: 'email and password are required' });
   }
   try {
-    const existUser = await client.query(
+    const existUser = await req.dbClient.query(
       'SELECT * FROM users WHERE email = $1',
       [email],
     );
@@ -174,12 +226,12 @@ app.post('/createUser', async (req, res) => {
     }
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const createUser = await client.query(
+    const createUser = await req.dbClient.query(
       'INSERT INTO users(email, password) VALUES($1, $2) RETURNING id',
       [email, hashPassword],
     );
     console.log('user created', createUser.rows);
-    await client.query('INSERT INTO sessions (userid, token) VALUES ($1, $2) RETURNING *', [createUser.rows[0].id, token]);
+    await req.dbClient.query('INSERT INTO sessions (userid, token) VALUES ($1, $2) RETURNING *', [createUser.rows[0].id, token]);
     res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.cookie('email', email, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
@@ -194,12 +246,12 @@ app.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const token = crypto.randomUUID();
   try {
-    const result = await client.query('SELECT * FROM users WHERE email = $1', [email]);
+    const result = await req.dbClient.query('SELECT * FROM users WHERE email = $1', [email]);
     if (result.rows.length > 0) {
       const user = result.rows[0];
       const match = await bcrypt.compare(password, user.password);
       if (match) {
-        await client.query('INSERT INTO sessions (userid, token) VALUES ($1, $2) RETURNING *', [user.id, token]);
+        await req.dbClient.query('INSERT INTO sessions (userid, token) VALUES ($1, $2) RETURNING *', [user.id, token]);
         res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
         res.cookie('email', email, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
         return res.status(200).json({ text: 'login successful' });
@@ -222,7 +274,7 @@ app.get('/protected-route', async (req, res) => {
   }
 
   try {
-    const result = await client.query(
+    const result = await req.dbClient.query(
       "SELECT * FROM sessions WHERE token = $1 AND created_at > NOW() - INTERVAL '7 days'",
       [token],
     );
@@ -237,19 +289,7 @@ app.get('/protected-route', async (req, res) => {
   }
 });
 
-async function isValidToken(token) {
-  try {
-    const result = await client.query(
-      "SELECT * FROM sessions WHERE token = $1 AND created_at > NOW() - INTERVAL '7 days'",
-      [token],
-    );
 
-    return result.rowCount > 0;
-  } catch (err) {
-    console.error('error checking token:', err);
-    return false;
-  }
-}
 
 app.get('/feed', async (req, res) => {
   const { token } = req.cookies;
@@ -279,7 +319,7 @@ app.put('/settings/profile', async (req, res) => {
   }
 
   try {
-    const session = await client.query(`
+    const session = await req.dbClient.query(`
       SELECT users.id FROM sessions
       JOIN users ON sessions.userid = users.id
       WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'
@@ -293,7 +333,7 @@ app.put('/settings/profile', async (req, res) => {
     const userId = session.rows[0].id;
 
     if (username) {
-      const exists = await client.query(
+      const exists = await req.dbClient.query(
         'SELECT id FROM users WHERE username = $1 AND id != $2',
         [username, userId],
       );
@@ -303,7 +343,7 @@ app.put('/settings/profile', async (req, res) => {
       }
     }
 
-    const updated = await client.query(`
+    const updated = await req.dbClient.query(`
       UPDATE users
       SET username = $1,
           nickname = $2,
@@ -345,7 +385,7 @@ app.put('/settings/password', async (req, res) => {
   }
 
   try {
-    const session = await client.query(
+    const session = await req.dbClient.query(
       `SELECT users.id, users.password, users.last_password_change FROM sessions 
        JOIN users ON sessions.userid = users.id 
        WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'`,
@@ -384,7 +424,7 @@ app.put('/settings/password', async (req, res) => {
 
     const hashNewPassword = await bcrypt.hash(newPassword, 10);
 
-    await client.query(
+    await req.dbClient.query(
       'UPDATE users SET password = $1, last_password_change = NOW()  WHERE id = $2',
       [hashNewPassword, user.id],
     );
@@ -404,13 +444,8 @@ app.put('/settings/email', async (req, res) => {
     return res.status(400).json({ error: 'Все поля обязательны' });
   }
 
-  // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  // if (!emailRegex.test(newEmail)) {
-  //   return res.status(400).json({ error: 'Неверный формат email' });
-  // }
-
   try {
-    const session = await client.query(`
+    const session = await req.dbClient.query(`
       SELECT users.id, users.email, users.password FROM sessions
       JOIN users ON sessions.userid = users.id
       WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'
@@ -431,12 +466,12 @@ app.put('/settings/email', async (req, res) => {
       return res.status(400).json({ error: 'Email совпадает с текущим' });
     }
 
-    const existing = await client.query('SELECT id FROM users WHERE email = $1', [newEmail]);
+    const existing = await req.dbClient.query('SELECT id FROM users WHERE email = $1', [newEmail]);
     if (existing.rows.length > 0) {
       return res.status(400).json({ error: 'Email уже используется' });
     }
 
-    await client.query('UPDATE users SET email = $1 WHERE id = $2', [newEmail, user.id]);
+    await req.dbClient.query('UPDATE users SET email = $1 WHERE id = $2', [newEmail, user.id]);
     res.cookie('email', newEmail, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     return res.status(200).json({ email: newEmail });
@@ -454,7 +489,7 @@ app.get('/me', async (req, res) => {
   }
 
   try {
-    const sessionResult = await client.query(
+    const sessionResult = await req.dbClient.query(
       `SELECT users.id
        FROM sessions
        JOIN users ON sessions.userid = users.id
@@ -469,14 +504,14 @@ app.get('/me', async (req, res) => {
 
     const userId = sessionResult.rows[0].id;
 
-    const userResult = await client.query(
+    const userResult = await req.dbClient.query(
       `SELECT id, email, avatar_url, username, nickname, bio, geo, site, birthday, last_password_change, background
        FROM users
        WHERE id = $1`,
       [userId],
     );
 
-    const postsResult = await client.query(
+    const postsResult = await req.dbClient.query(
       `SELECT p.id, p.message, p.imgmessage, p.date,
               u.username, u.nickname, u.avatar_url
        FROM posts p
@@ -495,6 +530,38 @@ app.get('/me', async (req, res) => {
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 });
+
+app.get('/profile/:id', async (req, res) => {
+   const { id } = req.params;
+  try {
+    const userId = parseInt(id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ error: 'Неверный ID пользователя' });
+    }
+    const userResult = await req.dbClient.query(
+      'SELECT id, email, avatar_url, username, nickname, bio, geo, site, birthday, background FROM users WHERE id = $1',
+      [userId]
+    );
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Пользователь не найден' });
+    }
+
+
+    const postsResult = await req.dbClient.query(
+      'SELECT id, message, imgmessage, date, quantityreposts, quantitylike, quantityshare FROM posts WHERE userid = $1 ORDER BY date DESC',
+      [userId]
+    );
+
+    res.json({
+      profile: userResult.rows[0],
+      posts: postsResult.rows, });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: 'Ошибка сервера' });
+  }
+})
+
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

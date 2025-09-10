@@ -32,17 +32,16 @@ const RegModal = ({ active, setActive }) => {
     }
     return result;
   };
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
       e.preventDefault();
-      setEmail('');
-      setPassword('');
-      setCheckPassword('');
-      setMessage('');
-    
-      console.log(email, password, checkPassword)
+
+      setEmailError("");
+      setPasswordError("");
+      setMessage("");
+      
       try {
-        if (isValid(this) === true) {
-        fetch("/createUser", {
+        if (isValid()) {
+          const res = await fetch("http://localhost:3000/createUser", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -50,27 +49,24 @@ const RegModal = ({ active, setActive }) => {
           body: JSON.stringify({
             email: email,
             password: password,
-          })
-        })
-        .then((res) => {
+          }),
+        });
+
           if (!res.ok) {
-            return res.json().then((error) => {
-              throw new Error(error.error)
-            });
+            const error = await res.json();
+            throw new Error(error.error);
           }
-          setMessage('registration was successful')
+          setMessage('registration was successful');
+          setEmail('');
+          setPassword('');
+          setCheckPassword('');
           window.location.href = '/feed';
-            return res.json()
-        })
-      .catch ((error) => {
-        setEmailError('network error', error.message)
-      })
         }
-  }
-    catch (error) {
-      console.log('server error', error)
-    } 
-  }
+      } catch (error) {
+        console.error("server error", error);
+        setEmailError("Ошибка: " + error.message);
+      }
+  };
   
   
 

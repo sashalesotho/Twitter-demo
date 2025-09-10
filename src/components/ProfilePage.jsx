@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { fetchCurrentUser } from '../../store/userSlice';
+import { fetchOtherUser } from '../../store/otherUserSlice';
 import UserInfo from './UserInfo';
 import UserPosts from './UserPosts';
 import Topics from './Topics';
@@ -10,16 +12,49 @@ import MobileHeader from './MobileHeader';
 import MobileFooter from './MobileFooter';
 import styles from '../styles/ProfilePage.module.css';
 
+
 const ProfilePage = () => {
+  const { id } = useParams();
   const dispatch = useDispatch();
   const { profile, posts, loading, error } = useSelector((state) => state.user);
+  const {
+    profile: otherProfile,
+    posts: otherPosts,
+    loading: otherLoading,
+    error: otherError,
+  } = useSelector((state) => state.otherUser);
+
+  console.log('ID из URL:', id);
+  console.log('Текущий профиль:', profile);
+  console.log('Чужой профиль:', otherProfile);
+  console.log('Ошибка user:', error);
+  console.log('Ошибка otherUser:', otherError);
 
   useEffect(() => {
-    dispatch(fetchCurrentUser());
+    if (id) {
+      dispatch(fetchOtherUser(id));
+    } else {
+      dispatch(fetchCurrentUser());
+    }
   }, [dispatch]);
+  const isOther = Boolean(id);
+  const currentLoading = isOther ? otherLoading : loading;
+  const currentError = isOther ? otherError : error;
+  const currentProfile = isOther ? otherProfile : profile;
+  const currentPosts = isOther ? otherPosts : posts;
 
-  if (loading) return <p>Загрузка...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+
+  console.log('Текущие данные:', {
+    isOther,
+    currentLoading,
+    currentError,
+    currentProfile,
+    currentPosts
+  });
+
+  if (currentLoading) return <p>Загрузка...</p>;
+  if (currentError) return <p style={{ color: 'red' }}>{currentError}</p>;
+  if (!currentProfile) return <p>Пользователь не найден</p>;
 
   return (
     <>
@@ -28,14 +63,14 @@ const ProfilePage = () => {
     <div className={styles.container}>
      
       <div className={styles.left}>
-      {profile && (
+      {currentProfile && (
         <div className={styles.info}>
-          <UserInfo profile={profile} />
+          <UserInfo profile={currentProfile} />
         </div>
       )}
-      {Array.isArray(posts) && posts.length > 0 ? (
+      {Array.isArray(currentPosts) && currentPosts.length > 0 ? (
         <div className={styles.posts}>
-          <UserPosts posts={posts} />
+          <UserPosts posts={currentPosts} />
         </div>
       ) : (
         <p>нет постов</p>
