@@ -4,8 +4,6 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 const app = express();
 const port = 3000;
@@ -17,7 +15,7 @@ const pool = new Pool({
   password: 'QBVSEZOsncY9xLYNIwUBvrZ7kxDKx0Lr',
   database: 'twitter0209',
   ssl: {
-    rejectUnauthorized: false 
+    rejectUnauthorized: false,
   },
   max: 10,
   idleTimeoutMillis: 30000,
@@ -29,25 +27,20 @@ const pool = new Pool({
 //   process.exit(-1);
 // });
 
-
-
 // app.use(express.static('public'));
-
-
 
 app.use(async (req, res, next) => {
   try {
     const client = await pool.connect();
     req.dbClient = client;
-    
-   
+
     res.on('finish', () => {
       if (req.dbClient) {
         req.dbClient.release();
         console.log('Connection released');
       }
     });
-    
+
     next();
   } catch (error) {
     console.error('Database connection error:', error);
@@ -55,17 +48,15 @@ app.use(async (req, res, next) => {
   }
 });
 
-
 // client
 //   .connect()
 //   .then(() => console.log('Connected to database'))
 //   .catch((err) => console.error('Connection error', err.stack));
 
-
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true,
-  }));
+}));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -81,7 +72,6 @@ async function isValidToken(dbClient, token) {
     return false;
   }
 }
-
 
 app.get('/posts', async (req, res) => {
   try {
@@ -288,8 +278,6 @@ app.get('/protected-route', async (req, res) => {
     return res.status(500).send('token verification error');
   }
 });
-
-
 
 app.get('/feed', async (req, res) => {
   const { token } = req.cookies;
@@ -532,36 +520,34 @@ app.get('/me', async (req, res) => {
 });
 
 app.get('/profile/:id', async (req, res) => {
-   const { id } = req.params;
+  const { id } = req.params;
   try {
-    const userId = parseInt(id);
-    if (isNaN(userId)) {
+    const userId = parseInt(id, 10);
+    if (Number.isNaN(userId)) {
       return res.status(400).json({ error: 'Неверный ID пользователя' });
     }
     const userResult = await req.dbClient.query(
       'SELECT id, email, avatar_url, username, nickname, bio, geo, site, birthday, background FROM users WHERE id = $1',
-      [userId]
+      [userId],
     );
     if (userResult.rows.length === 0) {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
 
-
     const postsResult = await req.dbClient.query(
       'SELECT id, message, imgmessage, date, quantityreposts, quantitylike, quantityshare FROM posts WHERE userid = $1 ORDER BY date DESC',
-      [userId]
+      [userId],
     );
 
-    res.json({
+    return res.json({
       profile: userResult.rows[0],
-      posts: postsResult.rows, });
+      posts: postsResult.rows,
+    });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ message: 'Ошибка сервера' });
+    return res.status(500).json({ message: 'Ошибка сервера' });
   }
-})
-
-
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

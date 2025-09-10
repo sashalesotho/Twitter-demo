@@ -24,7 +24,7 @@ export const fetchOtherUser = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 const otherUserSlice = createSlice({
