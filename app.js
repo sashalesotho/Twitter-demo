@@ -60,16 +60,21 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-async function isValidToken(dbClient, token) {
+async function getCurrentUserId(req) {
+  const { token } = req.cookies;
+  if (!token) return null;
   try {
-    const result = await dbClient.query(
-      "SELECT * FROM sessions WHERE token = $1 AND created_at > NOW() - INTERVAL '7 days'",
+    const result = await req.dbClient.query(
+      `SELECT users.id FROM sessions
+       JOIN users ON sessions.userid = users.id
+       WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'`,
       [token],
     );
-    return result.rowCount > 0;
+    if (result.rows.length === 0) return null;
+    return result.rows[0].id;
   } catch (err) {
-    console.error('Error checking token:', err);
-    return false;
+    console.error('getCurrentUserId error', err);
+    return null;
   }
 }
 
@@ -279,15 +284,15 @@ app.get('/protected-route', async (req, res) => {
   }
 });
 
-app.get('/feed', async (req, res) => {
-  const { token } = req.cookies;
+// app.get('/feed', async (req, res) => {
+//   const { token } = req.cookies;
 
-  if (!token || !(await isValidToken(token))) {
-    return res.status(401).send('Пользователь не авторизован');
-  }
+//   if (!token || !(await isValidToken(token))) {
+//     return res.status(401).send('Пользователь не авторизован');
+//   }
 
-  return res.send('feed');
-});
+//   return res.send('feed');
+// });
 
 app.put('/settings/profile', async (req, res) => {
   const { token } = req.cookies;
@@ -546,6 +551,95 @@ app.get('/profile/:id', async (req, res) => {
   } catch (error) {
     console.error(error.message);
     return res.status(500).json({ message: 'Ошибка сервера' });
+  }
+});
+
+app.post('/subscriptions/:userId', async (req, res) => {
+  const targetId = parseInt(req.params.userId, 10);
+  if (Number.isNaN(targetId)) return res.status(400).json({ error: 'Invalid userId' });
+
+  try {
+    const followerId = await getCurrentUserId(req);
+    if (!followerId) return res.status(401).json({ error: 'Unauthorized' });
+    if (followerId === targetId) return res.status(400).json({ error: 'Cannot subscribe to yourself' });
+
+    const id = crypto.randomUUID();
+    const insert = await req.dbClient.query(
+      `INSERT INTO subscriptions (id, follower_id, user_id)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (follower_id, user_id) DO NOTHING
+       RETURNING *`,
+      [id, followerId, targetId],
+    );
+
+    const already = insert.rowCount === 0;
+    return res.status(already ? 200 : 201).json({
+      subscribed: true,
+      already,
+      userId: targetId,
+    });
+  } catch (err) {
+    console.error('subscribe error', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.delete('/subscriptions/:userId', async (req, res) => {
+  try {
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) {
+      return res.status(401).json({ error: 'Пользователь не авторизован' });
+    }
+
+    const { userId } = req.params;
+    if (Number.isNaN(userId)) {
+      return res.status(400).json({ error: 'Неверный userId' });
+    }
+
+    await req.dbClient.query(
+      `DELETE FROM subscriptions 
+       WHERE follower_id = $1 AND user_id = $2`,
+      [currentUserId, userId],
+    );
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('unsubscribe error', err);
+    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+app.get('/feed', async (req, res) => {
+  try {
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) return res.status(401).json({ error: 'Пользователь не авторизован' });
+
+    const result = await req.dbClient.query(
+      `SELECT 
+         p.id,
+         p.userid,
+         p.username,
+         p.email,
+         p.message,
+         p.imgmessage,
+         p.date,
+         p.quantityreposts,
+         p.quantitylike,
+         p.quantityshare,
+         u.avatar_url
+       FROM posts p
+       JOIN users u ON p.userid = u.id
+       WHERE p.userid = $1
+          OR p.userid IN (SELECT user_id FROM subscriptions WHERE follower_id = $1)
+       ORDER BY p.date DESC
+       LIMIT 200`,
+      [currentUserId],
+    );
+
+    return res.json(result.rows);
+  } catch (err) {
+    console.error('feed error', err);
+    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 });
 
