@@ -1,0 +1,29 @@
+.subscribe {
+    
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #0057ff;
+    border-radius: 10px;
+    
+    text-align: center;
+    font-size: 18px;
+    font-family: "Lato", Arial, sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    cursor: pointer;
+    color: #0057ff;
+    background-color: #ffffff;
+    transition: 0.15s;
+}
+.subscribe:hover {
+    color: #ffffff;
+    background-color: #0057ff;
+    font-weight: 700;
+}
+
+@media screen and (width > 1279px) {
+
+.subscribe {
+  width: 180px;
+}
+}
