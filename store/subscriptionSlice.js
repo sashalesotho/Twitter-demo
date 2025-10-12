@@ -34,6 +34,23 @@ export const unsubscribeUser = createAsyncThunk(
   },
 );
 
+export const removeFollower = createAsyncThunk(
+  'subscription/removeFollower',
+  async (followerId, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`/api/subscriptions/remove-follower/${followerId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return rejectWithValue(data.error || 'Ошибка при удалении подписчика');
+      return { followerId, ...data };
+    } catch (err) {
+      return rejectWithValue(err.message || 'Network error');
+    }
+  },
+);
+
 const subscriptionSlice = createSlice({
   name: 'subscription',
   initialState: {
@@ -53,7 +70,7 @@ const subscriptionSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // SUBSCRIBE
+
       .addCase(subscribeUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -61,7 +78,6 @@ const subscriptionSlice = createSlice({
       .addCase(subscribeUser.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        // action.payload должен содержать { userId, subscribed, already, ... }
         const userId = action.payload?.userId ?? null;
         state.lastAction = userId ? { type: 'subscribe', userId } : { type: 'subscribe' };
       })
@@ -71,7 +87,6 @@ const subscriptionSlice = createSlice({
         state.lastAction = null;
       })
 
-      // UNSUBSCRIBE
       .addCase(unsubscribeUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -85,6 +100,21 @@ const subscriptionSlice = createSlice({
       .addCase(unsubscribeUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || action.error?.message || 'Ошибка при отписке';
+        state.lastAction = null;
+      })
+
+      .addCase(removeFollower.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(removeFollower.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.lastAction = { type: 'removeFollower', userId: action.payload?.followerId };
+      })
+      .addCase(removeFollower.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || action.error?.message || 'Ошибка при удалении подписчика';
         state.lastAction = null;
       });
   },

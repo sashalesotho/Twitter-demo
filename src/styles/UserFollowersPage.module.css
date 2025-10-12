@@ -1,0 +1,7 @@
+.container { padding: 16px; }
+.userCard { display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid #eee; }
+.avatar { width:48px; height:48px; border-radius:50%; object-fit:cover; }
+.info { flex:1; }
+.name { font-weight:600; }
+.nick { color:#666; font-size:0.9rem; }
+.actions button { padding:6px 10px; border-radius:8px; }

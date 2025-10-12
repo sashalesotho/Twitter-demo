@@ -19,7 +19,7 @@ const ProfilePage = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.user.profile);
-
+ 
   const { profile, posts, loading, error } = useSelector((state) => state.user);
   const {
     profile: otherProfile,
