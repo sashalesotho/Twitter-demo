@@ -9,11 +9,11 @@ const app = express();
 const port = 3000;
 const { Pool } = pg;
 const pool = new Pool({
-  host: 'dpg-d2rkp38gjchc73aoud90-a.oregon-postgres.render.com',
+  host: 'dpg-d3lcu03ipnbc739tf5pg-a.oregon-postgres.render.com',
   port: '5432',
-  user: 'twitter0209_user',
-  password: 'QBVSEZOsncY9xLYNIwUBvrZ7kxDKx0Lr',
-  database: 'twitter0209',
+  user: 'twitter1210_user',
+  password: 'MJNi0lntPaJjM0JZzZQRHEd9dhZJq2TK',
+  database: 'twitter1210',
   ssl: {
     rejectUnauthorized: false,
   },
@@ -554,6 +554,29 @@ app.get('/profile/:id', async (req, res) => {
   }
 });
 
+// Получение списка пользователей, на которых подписан текущий пользователь
+app.get('/subscriptions', async (req, res) => {
+  try {
+    const followerId = await getCurrentUserId(req);
+    if (!followerId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const result = await req.dbClient.query(
+      `SELECT u.id, u.username, u.nickname, u.avatar_url
+       FROM subscriptions s
+       JOIN users u ON u.id = s.user_id
+       WHERE s.follower_id = $1`,
+      [followerId],
+    );
+
+    return res.json(result.rows);
+  } catch (err) {
+    console.error('get subscriptions error', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.post('/subscriptions/:userId', async (req, res) => {
   const targetId = parseInt(req.params.userId, 10);
   if (Number.isNaN(targetId)) return res.status(400).json({ error: 'Invalid userId' });
@@ -563,13 +586,13 @@ app.post('/subscriptions/:userId', async (req, res) => {
     if (!followerId) return res.status(401).json({ error: 'Unauthorized' });
     if (followerId === targetId) return res.status(400).json({ error: 'Cannot subscribe to yourself' });
 
-    const id = crypto.randomUUID();
+    // const id = crypto.randomUUID();
     const insert = await req.dbClient.query(
-      `INSERT INTO subscriptions (id, follower_id, user_id)
-       VALUES ($1, $2, $3)
+      `INSERT INTO subscriptions (follower_id, user_id)
+       VALUES ($1, $2)
        ON CONFLICT (follower_id, user_id) DO NOTHING
        RETURNING *`,
-      [id, followerId, targetId],
+      [followerId, targetId],
     );
 
     const already = insert.rowCount === 0;
@@ -605,6 +628,89 @@ app.delete('/subscriptions/:userId', async (req, res) => {
     return res.json({ success: true });
   } catch (err) {
     console.error('unsubscribe error', err);
+    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+app.get('/followers', async (req, res) => {
+  try {
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) return res.status(401).json({ error: 'Пользователь не авторизован' });
+
+    const q = `
+      SELECT u.id, u.username, u.nickname, u.avatar_url, u.bio, s.created_at as subscribed_at
+      FROM subscriptions s
+      JOIN users u ON s.follower_id = u.id
+      WHERE s.user_id = $1
+      ORDER BY s.created_at DESC
+    `;
+    const result = await req.dbClient.query(q, [currentUserId]);
+    return res.json(result.rows);
+  } catch (err) {
+    console.error('followers list error', err);
+    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+app.get('/profile/:id/following', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    if (Number.isNaN(userId)) return res.status(400).json({ error: 'Неверный ID' });
+
+    const q = `
+      SELECT u.id, u.username, u.nickname, u.avatar_url, u.bio, s.created_at as subscribed_at
+      FROM subscriptions s
+      JOIN users u ON s.user_id = u.id
+      WHERE s.follower_id = $1
+      ORDER BY s.created_at DESC
+    `;
+    const result = await req.dbClient.query(q, [userId]);
+    return res.json(result.rows);
+  } catch (err) {
+    console.error('profile following error', err);
+    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+app.get('/profile/:id/followers', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    if (Number.isNaN(userId)) return res.status(400).json({ error: 'Неверный ID' });
+
+    const q = `
+      SELECT u.id, u.username, u.nickname, u.avatar_url, u.bio, s.created_at as subscribed_at
+      FROM subscriptions s
+      JOIN users u ON s.follower_id = u.id
+      WHERE s.user_id = $1
+      ORDER BY s.created_at DESC
+    `;
+    const result = await req.dbClient.query(q, [userId]);
+    return res.json(result.rows);
+  } catch (err) {
+    console.error('profile followers error', err);
+    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+app.delete('/subscriptions/remove-follower/:followerId', async (req, res) => {
+  try {
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) return res.status(401).json({ error: 'Пользователь не авторизован' });
+
+    const followerId = parseInt(req.params.followerId, 10);
+    if (Number.isNaN(followerId)) return res.status(400).json({ error: 'Неверный followerId' });
+
+    const del = await req.dbClient.query(
+      'DELETE FROM subscriptions WHERE follower_id = $1 AND user_id = $2 RETURNING *',
+      [followerId, currentUserId],
+    );
+
+    if (del.rowCount === 0) {
+      return res.status(200).json({ removed: false });
+    }
+    return res.status(200).json({ removed: true, followerId });
+  } catch (err) {
+    console.error('remove follower error', err);
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 });
