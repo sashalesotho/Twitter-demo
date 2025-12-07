@@ -1,31 +1,45 @@
-import styles from '../styles/Topics.module.css';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPopularHashtags } from '../../store/hashtagsSlice';
+import { Link } from 'react-router-dom';
+
+
 const Topics = () => {
-    return (<div className={styles.container}>
-        <h1>Актуальные темы</h1>
-        <div className={styles.topics}>
-            <div className={styles.topic}>
-            <div className={styles.hashtag}>#javascript</div>
-            <div className={styles.number}>2941 сообщение</div>
-            </div>
-            <div className={styles.topic}>
-            <div className={styles.hashtag}>#python3</div>
-            <div className={styles.number}>29718 сообщений</div>
-            </div>
-            <div className={styles.topic}>
-            <div className={styles.hashtag}>#ruby</div>
-            <div className={styles.number}>958186 сообщений</div>
-            </div>
-            <div className={styles.topic}>
-            <div className={styles.hashtag}>#как_научиться_коду?</div>
-            <div className={styles.number}>4185 сообщений</div>
-            </div>
-            <div className={styles.topic}>
-            <div className={styles.hashtag}>#помогите_с_кодом</div>
-            <div className={styles.number}>482 сообщения</div>
-            </div>
-        </div>
-        
-    </div>)
+const dispatch = useDispatch();
+const { popular, status } = useSelector((state) => state.hashtags);
+
+
+useEffect(() => {
+dispatch(fetchPopularHashtags());
+}, [dispatch]);
+
+
+if (status === 'loading') return <div className="text-sm text-gray-400">...</div>;
+if (popular.length === 0) {
+    return (
+      <div className="p-4 rounded-2xl shadow bg-white">
+        <h3 className="font-bold text-lg mb-3">Популярные хештеги</h3>
+        <div className="text-gray-500 text-sm">Пока ничего нет</div>
+      </div>
+    );
+  }
+
+return (
+<div className="p-4 rounded-2xl shadow bg-white">
+<h3 className="font-bold text-lg mb-3">Популярные хештеги</h3>
+<div className="flex flex-col gap-2">
+{popular.map((h) => (
+<Link
+key={h.tag}
+to={`/hashtag/${h.tag}`}
+className="text-blue-600 hover:underline"
+>
+#{h.tag} <span className="text-gray-500">({h.count})</span>
+</Link>
+))}
+</div>
+</div>
+);
 }
 
 export default Topics;

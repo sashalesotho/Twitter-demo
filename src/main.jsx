@@ -15,6 +15,7 @@ import ProfileSettingsPage from './components/ProfileSettingsPage.jsx'
 import PasswordSettingsPage from './components/PasswordSettingsPage.jsx'
 import EmailSettingsPage from './components/EmailSettingsPage.jsx'
 import ProfileSettingsMenu from './components/ProfileSettingsMenu.jsx'
+import HashtagPage from './components/HashtagPage.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -34,6 +35,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/followers" element={<FollowersPage />}/>
           <Route path="/profile/:id/following" element={<UserFollowingPage />}/>
           <Route path="/profile/:id/followers" element={<UserFollowersPage />}/>
+          <Route path="/hashtag/:tag" element={<HashtagPage />} />
           
 
       

@@ -97,6 +97,10 @@
     align-items: center;
     font-size: 14px;
   }
+  button.stats__item {
+    border: none;
+    background-color: #fff;
+  }
   
   .stats__item p {
     padding-left: 12px;

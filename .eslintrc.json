@@ -15,7 +15,8 @@
 	  "prefer-arrow-callback": 0,
 	  "mocha/prefer-arrow-callback": 0,
 	  "linebreak-style": 0,
-	  "no-param-reassign": 0
+	  "no-param-reassign": 0,
+	  "no-restricted-syntax": "off"
 
 	}
   }

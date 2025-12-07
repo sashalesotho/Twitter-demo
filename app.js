@@ -9,11 +9,11 @@ const app = express();
 const port = 3000;
 const { Pool } = pg;
 const pool = new Pool({
-  host: 'dpg-d3lcu03ipnbc739tf5pg-a.oregon-postgres.render.com',
+  host: 'dpg-d4ahq6s9c44c738i216g-a.oregon-postgres.render.com',
   port: '5432',
-  user: 'twitter1210_user',
-  password: 'MJNi0lntPaJjM0JZzZQRHEd9dhZJq2TK',
-  database: 'twitter1210',
+  user: 'twitter1311_user',
+  password: '8CxxkIxKYF70H8WmxjMyqTqeZ2WQ9PQq',
+  database: 'twitter1311',
   ssl: {
     rejectUnauthorized: false,
   },
@@ -114,9 +114,11 @@ app.post('/posts', async (req, res) => {
 
   try {
     const session = await req.dbClient.query(
-      `SELECT users.id, users.email FROM sessions 
+      `SELECT users.id, users.email 
+       FROM sessions 
        JOIN users ON sessions.userid = users.id 
-       WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'`,
+       WHERE sessions.token = $1 
+         AND sessions.created_at > NOW() - INTERVAL '7 days'`,
       [token],
     );
 
@@ -135,13 +137,67 @@ app.post('/posts', async (req, res) => {
 
     const result = await req.dbClient.query(
       `INSERT INTO posts (id, userId, username, email, message, imgmessage, date) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [id, user.id, user.email.split('@')[0], user.email, message, image || '', date],
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
+       RETURNING *`,
+      [
+        id,
+        user.id,
+        user.email.split('@')[0],
+        user.email,
+        message,
+        image || '',
+        date,
+      ],
     );
 
-    return res.status(201).json(result.rows[0]);
+    const savedPost = result.rows[0];
+
+    try {
+      const hashtags = message.toLowerCase().match(/#[\p{L}\p{N}_]+/gu) || [];
+      const tags = [...new Set(hashtags.map((t) => t.slice(1)))]; // без повторов и #
+
+      for (const tag of tags) {
+        // eslint-disable-next-line no-await-in-loop
+        const insertTag = await req.dbClient.query(
+          `INSERT INTO hashtags (tag, created_at)
+           VALUES ($1, NOW())
+           ON CONFLICT (tag) DO NOTHING
+           RETURNING id`,
+          [tag],
+        );
+
+        let hashtagId;
+
+        if (insertTag.rows.length > 0) {
+          hashtagId = insertTag.rows[0].id;
+        } else {
+          // eslint-disable-next-line no-await-in-loop
+          const existing = await req.dbClient.query(
+            'SELECT id FROM hashtags WHERE tag = $1',
+            [tag],
+          );
+          hashtagId = existing.rows[0].id;
+        }
+        // eslint-disable-next-line no-await-in-loop
+        await req.dbClient.query(
+          `INSERT INTO post_hashtags (post_id, hashtag_id)
+           VALUES ($1, $2)
+           ON CONFLICT DO NOTHING`,
+          [id, hashtagId],
+        );
+      }
+    } catch (errHashtag) {
+      console.error('Ошибка при обработке хештегов:', errHashtag);
+      return res.status(500).json({
+        error: 'Ошибка при обработке хештегов',
+        details: errHashtag.message,
+      });
+    }
+
+    return res.status(201).json(savedPost);
   } catch (error) {
     console.error('Ошибка при сохранении поста:', error);
+
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 });
@@ -527,10 +583,8 @@ app.get('/me', async (req, res) => {
 app.get('/profile/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const userId = parseInt(id, 10);
-    if (Number.isNaN(userId)) {
-      return res.status(400).json({ error: 'Неверный ID пользователя' });
-    }
+    const userId = id;
+
     const userResult = await req.dbClient.query(
       'SELECT id, email, avatar_url, username, nickname, bio, geo, site, birthday, background FROM users WHERE id = $1',
       [userId],
@@ -578,8 +632,7 @@ app.get('/subscriptions', async (req, res) => {
 });
 
 app.post('/subscriptions/:userId', async (req, res) => {
-  const targetId = parseInt(req.params.userId, 10);
-  if (Number.isNaN(targetId)) return res.status(400).json({ error: 'Invalid userId' });
+  const targetId = req.params.userId;
 
   try {
     const followerId = await getCurrentUserId(req);
@@ -615,9 +668,6 @@ app.delete('/subscriptions/:userId', async (req, res) => {
     }
 
     const { userId } = req.params;
-    if (Number.isNaN(userId)) {
-      return res.status(400).json({ error: 'Неверный userId' });
-    }
 
     await req.dbClient.query(
       `DELETE FROM subscriptions 
@@ -654,8 +704,7 @@ app.get('/followers', async (req, res) => {
 
 app.get('/profile/:id/following', async (req, res) => {
   try {
-    const userId = parseInt(req.params.id, 10);
-    if (Number.isNaN(userId)) return res.status(400).json({ error: 'Неверный ID' });
+    const userId = req.params.id;
 
     const q = `
       SELECT u.id, u.username, u.nickname, u.avatar_url, u.bio, s.created_at as subscribed_at
@@ -674,8 +723,7 @@ app.get('/profile/:id/following', async (req, res) => {
 
 app.get('/profile/:id/followers', async (req, res) => {
   try {
-    const userId = parseInt(req.params.id, 10);
-    if (Number.isNaN(userId)) return res.status(400).json({ error: 'Неверный ID' });
+    const userId = req.params.id;
 
     const q = `
       SELECT u.id, u.username, u.nickname, u.avatar_url, u.bio, s.created_at as subscribed_at
@@ -697,8 +745,7 @@ app.delete('/subscriptions/remove-follower/:followerId', async (req, res) => {
     const currentUserId = await getCurrentUserId(req);
     if (!currentUserId) return res.status(401).json({ error: 'Пользователь не авторизован' });
 
-    const followerId = parseInt(req.params.followerId, 10);
-    if (Number.isNaN(followerId)) return res.status(400).json({ error: 'Неверный followerId' });
+    const { followerId } = req.params;
 
     const del = await req.dbClient.query(
       'DELETE FROM subscriptions WHERE follower_id = $1 AND user_id = $2 RETURNING *',
@@ -712,6 +759,29 @@ app.delete('/subscriptions/remove-follower/:followerId', async (req, res) => {
   } catch (err) {
     console.error('remove follower error', err);
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+app.get('/popular-users', async (req, res) => {
+  try {
+    const result = await req.dbClient.query(`
+      SELECT 
+        u.id,
+        u.username,
+        u.nickname,
+        u.avatar_url,
+        COUNT(s.follower_id) AS followers_count
+      FROM users u
+      LEFT JOIN subscriptions s ON u.id = s.user_id
+      GROUP BY u.id
+      ORDER BY followers_count DESC
+      LIMIT 3
+    `);
+
+    return res.json(result.rows);
+  } catch (err) {
+    console.error('popular users error', err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -746,6 +816,136 @@ app.get('/feed', async (req, res) => {
   } catch (err) {
     console.error('feed error', err);
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+app.get('/hashtag/:tag', async (req, res) => {
+  const { tag } = req.params;
+
+  try {
+    const result = await req.dbClient.query(`
+      SELECT 
+        p.id,
+        p.message,
+        p.imgmessage,
+        p.date,
+        u.username,
+        u.nickname,
+        u.avatar_url
+      FROM post_hashtags ph
+      JOIN hashtags h ON h.id = ph.hashtag_id
+      JOIN posts p ON p.id = ph.post_id
+      JOIN users u ON u.id = p.userid
+      WHERE h.tag = $1
+      ORDER BY p.date DESC
+    `, [tag.toLowerCase()]);
+
+    return res.json(result.rows);
+  } catch (error) {
+    console.error('hashtag error:', error);
+    return res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+app.get('/hashtags/popular', async (req, res) => {
+  try {
+    const result = await req.dbClient.query(`
+      SELECT h.tag, COUNT(ph.post_id) AS count
+      FROM hashtags h
+      JOIN post_hashtags ph ON ph.hashtag_id = h.id
+      GROUP BY h.id
+      ORDER BY count DESC
+      LIMIT 3
+    `);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('popular hashtags error:', error);
+    res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+app.post('/like', async (req, res) => {
+  const { token } = req.cookies;
+  const { postId } = req.body;
+
+  if (!token) {
+    return res.status(401).json({ error: 'Необходима авторизация' });
+  }
+
+  try {
+    const session = await req.dbClient.query(
+      `SELECT users.id FROM sessions 
+       JOIN users ON sessions.userid = users.id
+       WHERE sessions.token = $1
+         AND sessions.created_at > NOW() - INTERVAL '7 days'`,
+      [token],
+    );
+
+    if (session.rows.length === 0) return res.status(401).json({ error: 'Неверный токен' });
+
+    const userId = session.rows[0].id;
+
+    await req.dbClient.query(
+      `INSERT INTO likes (user_id, post_id)
+       VALUES ($1, $2)
+       ON CONFLICT (user_id, post_id) DO NOTHING`,
+      [userId, postId],
+    );
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('like error:', err);
+    return res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+app.delete('/like', async (req, res) => {
+  const { token } = req.cookies;
+  const { postId } = req.body;
+
+  if (!token) {
+    return res.status(401).json({ error: 'Необходима авторизация' });
+  }
+
+  try {
+    const session = await req.dbClient.query(
+      `SELECT users.id FROM sessions 
+       JOIN users ON sessions.userid = users.id
+       WHERE sessions.token = $1
+         AND sessions.created_at > NOW() - INTERVAL '7 days'`,
+      [token],
+    );
+
+    if (session.rows.length === 0) return res.status(401).json({ error: 'Неверный токен' });
+
+    const userId = session.rows[0].id;
+
+    await req.dbClient.query(
+      'DELETE FROM likes WHERE user_id = $1 AND post_id = $2',
+      [userId, postId],
+    );
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('unlike error:', err);
+    return res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+app.get('/posts/:postId/likes', async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const result = await req.dbClient.query(
+      'SELECT COUNT(*) AS count FROM likes WHERE post_id = $1',
+      [postId],
+    );
+
+    res.json({ count: Number(result.rows[0].count) });
+  } catch (err) {
+    console.error('likes count error:', err);
+    res.status(500).json({ error: 'internal server error' });
   }
 });
 
