@@ -8,16 +8,7 @@ const UserPosts = ({ posts }) => {
       {posts.map((post) => (
         <Message
           key={post.id}
-          id={post.id}
-          picUrl={post.avatar_url}
-          username={post.username}
-          email={`@${post.nickname}`}
-          date={post.date}
-          message={post.message}
-          imgmessage={post.imgmessage}
-          quantityReposts={post.quantityreposts}
-          quantityLike={post.quantitylike}
-          quantityShare={post.quantityreshare}
+          post={post}
         />
       ))}
     </ul>

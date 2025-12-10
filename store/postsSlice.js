@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { likePost, unlikePost } from './likesSlice.js';
 
 export const addPost = createAsyncThunk('posts/addPost', async ({ message, image }) => {
   const response = await fetch('/posts', {
@@ -21,7 +22,7 @@ throw new Error(errorData?.error || "Ошибка при сохранении п
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   const response = await fetch('/posts', { credentials: 'include' });
   const data = await response.json();
-  return data;
+  return data.posts ?? data;
 });
 
 const postsSlice = createSlice({
@@ -40,7 +41,7 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
         state.loading = false;
-        state.posts = action.payload;
+        state.posts = Array.isArray(action.payload) ? action.payload : [];
       })
       .addCase(fetchPosts.rejected, (state, action) => {
         state.loading = false;
@@ -49,6 +50,18 @@ const postsSlice = createSlice({
 
       .addCase(addPost.fulfilled, (state, action) => {
         state.posts.unshift(action.payload);
+      })
+
+      .addCase(likePost.fulfilled, (state, action) => {
+        const { postId } = action.payload;
+        const post = state.posts.find((p) => p.id === postId);
+        if (post) post.likes_count = (post.likes_count || 0) + 1;
+      })
+
+      .addCase(unlikePost.fulfilled, (state, action) => {
+        const { postId } = action.payload;
+        const post = state.posts.find((p) => p.id === postId);
+        if (post && post.likes_count > 0) post.likes_count -= 1;
       });
   },
 });

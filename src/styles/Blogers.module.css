@@ -2,6 +2,12 @@
     display: none;
 }
 
+.count {
+    font-size: 14px;
+    color: gray;
+  }
+  
+
 @media screen and (width > 1279px) {
     .container {
         width: 312px;

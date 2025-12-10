@@ -8,6 +8,9 @@ import subscriptionsReducer from './subscriptionsSlice.js';
 import followersReducer from './followersSlice.js';
 import userFollowingReducer from './userFollowingSlice.js';
 import userFollowersReducer from './userFollowersSlice.js';
+import blogersReducer from './blogersSlice.js';
+import hashtagsReducer from './hashtagsSlice.js';
+import likesReducer from './likesSlice.js';
 
 const store = configureStore({
   reducer: {
@@ -20,6 +23,9 @@ const store = configureStore({
     followers: followersReducer,
     userFollowing: userFollowingReducer,
     userFollowers: userFollowersReducer,
+    blogers: blogersReducer,
+    hashtags: hashtagsReducer,
+    likes: likesReducer,
   },
 });
 

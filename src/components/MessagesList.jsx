@@ -17,19 +17,10 @@ const MessagesList = () => {
     dispatch(fetchFeed());
   }, [dispatch]);
 
-  let messages = posts.map((el, index) => (
+  let messages = posts.map((post) => (
     <Message
-      key={el.id || `message-${index}`}
-      id={el.id}
-      picUrl={el.avatar_url || "/images/anonavatar.svg"}
-      name={el.name || 'аноним'}
-      mail={el.name || '@anon'}
-      date={el.date}
-      message={el.message}
-      imgmessage={el.imgmessage}
-      quantityReposts={el.quantityReposts || 0}
-      quantityLike={el.quantityLike || 0}
-      quantityShare={el.quantityShare || 0}
+      key={post.id || `message-${index}`}
+      post={post}
     />
     ));
 
