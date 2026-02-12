@@ -36,7 +36,7 @@ const AuthModal = ({ active, setActive }) => {
     setSuccessMessage("");
     setErrorMessage("");
 
-    console.log(email, password);
+   
     try {
       if (isValid(this) === true) {
         fetch("/login", {

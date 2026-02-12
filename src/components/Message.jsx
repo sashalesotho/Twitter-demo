@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { likePost, unlikePost } from "../../store/likesSlice";
 import convertTime from '../../assets/convert_time';
-import messageTimer from '../../public/message-timer';
 import styles from '../styles/MessagesList.module.css';
 
 const Message = ({ post }) => {  
@@ -11,7 +10,9 @@ const Message = ({ post }) => {
   const {
     id, userid, username, email, message, imgmessage, date, quantityReposts, quantityLike, quantityShare, avatar_url
   } = post;
-  const now = Date.now();
+  const now = new Date();
+  const postDate = date ? new Date(date) : null;
+
 
   const isLiked = useSelector((s) => s.likes.liked[id] === true);
   const likes_count = post.likes_count ?? 0;
@@ -32,7 +33,7 @@ return (
         <p className={styles["user__nickname"]}>{email}</p>
         </div>
         <div className={styles["post__time"]}>
-        <p>{date ? convertTime(messageTimer(date), now) : "нет даты"}</p>
+        <p>{date ? convertTime(postDate, now) : "нет даты"}</p>
         </div>
       </div>
       <div className={styles["post__message"]}>

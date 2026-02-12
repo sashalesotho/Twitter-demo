@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchFeed } from "../../store/feedSlice";
 import convertTime from "../../assets/convert_time";
-import messageTimer from "../../public/message-timer";
 import styles from "../styles/MessagesList.module.css";
 import MessageLoader from "./MessageLoader";
 import Message from "./Message";

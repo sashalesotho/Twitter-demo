@@ -28,9 +28,7 @@ const ProfilePage = () => {
     error: otherError,
   } = useSelector((state) => state.otherUser);
 
-  console.log('ID из URL:', id);
-  console.log('Текущий профиль:', profile);
-  console.log('Чужой профиль:', otherProfile);
+ 
   console.log('Ошибка user:', error);
   console.log('Ошибка otherUser:', otherError);
 
@@ -54,13 +52,6 @@ const ProfilePage = () => {
   const currentPosts = isOther ? otherPosts : posts;
 
 
-  console.log('Текущие данные:', {
-    isOther,
-    currentLoading,
-    currentError,
-    currentProfile,
-    currentPosts
-  });
 
   if (currentLoading) return <p>Загрузка...</p>;
   if (currentError) return <p style={{ color: 'red' }}>{currentError}</p>;
