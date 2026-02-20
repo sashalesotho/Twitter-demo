@@ -44,7 +44,7 @@ const NewMessage = ({ active, setActive }) => {
   }, [message]);
 
   const handleFileUpload = (fileInfo) => {
-    console.log("загруженный файл:", fileInfo);
+    
     setImgUrl(fileInfo.cdnUrl);
   };
 

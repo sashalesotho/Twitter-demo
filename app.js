@@ -1,25 +1,23 @@
+import path from 'path';
 import express from 'express';
 import pg from 'pg';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const port = 3000;
 const { Pool } = pg;
+
 const pool = new Pool({
-  host: 'dpg-d4ahq6s9c44c738i216g-a.oregon-postgres.render.com',
-  port: '5432',
-  user: 'twitter1311_user',
-  password: '8CxxkIxKYF70H8WmxjMyqTqeZ2WQ9PQq',
-  database: 'twitter1311',
+  connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false,
   },
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
 });
 
 // pool.on('error', (err) => {
@@ -29,30 +27,6 @@ const pool = new Pool({
 
 // app.use(express.static('public'));
 
-app.use(async (req, res, next) => {
-  try {
-    const client = await pool.connect();
-    req.dbClient = client;
-
-    res.on('finish', () => {
-      if (req.dbClient) {
-        req.dbClient.release();
-        console.log('Connection released');
-      }
-    });
-
-    next();
-  } catch (error) {
-    console.error('Database connection error:', error);
-    res.status(500).json({ error: 'Database connection failed' });
-  }
-});
-
-// client
-//   .connect()
-//   .then(() => console.log('Connected to database'))
-//   .catch((err) => console.error('Connection error', err.stack));
-
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true,
@@ -60,27 +34,62 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-async function getCurrentUserId(req) {
-  const { token } = req.cookies;
-  if (!token) return null;
-  try {
-    const result = await req.dbClient.query(
-      `SELECT users.id FROM sessions
-       JOIN users ON sessions.userid = users.id
-       WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'`,
-      [token],
-    );
-    if (result.rows.length === 0) return null;
-    return result.rows[0].id;
-  } catch (err) {
-    console.error('getCurrentUserId error', err);
-    return null;
+
+
+// app.use(async (req, res, next) => {
+//   try {
+//     const client = await pool.connect();
+//     req.dbClient = client;
+
+//     res.on('finish', () => {
+//       if (req.dbClient) {
+//         req.dbClient.release();
+//         console.log('Connection released');
+//       }
+//     });
+
+//     next();
+//   } catch (error) {
+//     console.error('Database connection error:', error);
+//     res.status(500).json({ error: 'Database connection failed' });
+//   }
+// });
+
+// client
+//   .connect()
+//   .then(() => console.log('Connected to database'))
+//   .catch((err) => console.error('Connection error', err.stack));
+
+async function query(text, params) {
+  return pool.query(text, params)
   }
-}
+
+
+  async function getCurrentUserId(req) {
+    const { token } = req.cookies;
+    if (!token) return null;
+  
+    try {
+      const result = await query(
+        `SELECT user_id
+         FROM sessions
+         WHERE token = $1
+           AND created_at > NOW() - INTERVAL '7 days'
+         LIMIT 1`,
+        [token]
+      );
+  
+      return result.rows.length ? result.rows[0].user_id : null;
+    } catch (err) {
+      console.error('getCurrentUserId error', err);
+      return null;
+    }
+  }
+  
 
 app.get('/posts', async (req, res) => {
   try {
-    const result = await req.dbClient.query(`
+    const result = await query(`
       SELECT 
         posts.id,
         posts.username,
@@ -88,12 +97,12 @@ app.get('/posts', async (req, res) => {
         posts.message,
         posts.imgmessage,
         posts.date,
-        posts.quantityReposts,
-        posts.quantityLike,
-        posts.quantityShare,
+        posts.quantityreposts AS reposts_count,
+        posts.quantitylike AS likes_count,
+        posts.quantityshare AS share_count,
         users.avatar_url
       FROM posts
-      LEFT JOIN users ON posts.userid = users.id
+      LEFT JOIN users ON posts.user_id = users.id
       ORDER BY posts.date DESC
     `);
     res.json(result.rows);
@@ -106,17 +115,17 @@ app.get('/posts', async (req, res) => {
 app.post('/posts', async (req, res) => {
   const { token } = req.cookies;
   const { message, image } = req.body;
-  console.log('ссылка на изображение:', image);
+  
 
   if (!token) {
     return res.status(401).json({ error: 'Необходима авторизация' });
   }
 
   try {
-    const session = await req.dbClient.query(
+    const session = await query(
       `SELECT users.id, users.email 
        FROM sessions 
-       JOIN users ON sessions.userid = users.id 
+       JOIN users ON sessions.user_id = users.id 
        WHERE sessions.token = $1 
          AND sessions.created_at > NOW() - INTERVAL '7 days'`,
       [token],
@@ -135,18 +144,18 @@ app.post('/posts', async (req, res) => {
     const id = crypto.randomUUID();
     const date = new Date();
 
-    const result = await req.dbClient.query(
-      `INSERT INTO posts (id, userId, username, email, message, imgmessage, date) 
+    const result = await query(
+      `INSERT INTO posts (user_id, username, email, message, imgmessage, date, avatar_url) 
        VALUES ($1, $2, $3, $4, $5, $6, $7) 
        RETURNING *`,
       [
-        id,
         user.id,
         user.email.split('@')[0],
         user.email,
         message,
         image || '',
         date,
+        ''
       ],
     );
 
@@ -158,7 +167,7 @@ app.post('/posts', async (req, res) => {
 
       for (const tag of tags) {
         // eslint-disable-next-line no-await-in-loop
-        const insertTag = await req.dbClient.query(
+        const insertTag = await query(
           `INSERT INTO hashtags (tag, created_at)
            VALUES ($1, NOW())
            ON CONFLICT (tag) DO NOTHING
@@ -172,14 +181,14 @@ app.post('/posts', async (req, res) => {
           hashtagId = insertTag.rows[0].id;
         } else {
           // eslint-disable-next-line no-await-in-loop
-          const existing = await req.dbClient.query(
+          const existing = await query(
             'SELECT id FROM hashtags WHERE tag = $1',
             [tag],
           );
           hashtagId = existing.rows[0].id;
         }
         // eslint-disable-next-line no-await-in-loop
-        await req.dbClient.query(
+        await query(
           `INSERT INTO post_hashtags (post_id, hashtag_id)
            VALUES ($1, $2)
            ON CONFLICT DO NOTHING`,
@@ -206,7 +215,7 @@ app.delete('/posts/:id.json', async (req, res) => {
   const postId = req.params.id;
 
   try {
-    const result = await req.dbClient.query('DELETE FROM posts WHERE id = $1', [
+    const result = await query('DELETE FROM posts WHERE id = $1', [
       postId,
     ]);
     if (result.rowCount === 0) {
@@ -222,33 +231,33 @@ app.delete('/posts/:id.json', async (req, res) => {
 app.put('/posts/:id.json', async (req, res) => {
   const postId = req.params.id;
   const {
-    userId,
+    user_id,
     username,
     email,
     message,
-    imgMessage,
+    imgmessage,
     date,
-    quantityReposts,
-    quantityLike,
-    quantityShare,
+    quantityreposts,
+    quantitylike,
+    quantityshare,
   } = req.body;
   try {
     if (!req.body) {
       return res.status(400).json({ error: 'content error' });
     }
-    const result = await req.dbClient.query(
+    const result = await query(
       'UPDATE posts SET userId = $2, username = $3, email = $4, message = $5, imgMessage = $6, date = $7, quantityReposts = $8, quantityLike = $9,  quantityShare = $10 WHERE id = $1 RETURNING *',
       [
         postId,
-        userId,
+        user_id,
         username,
         email,
         message,
-        imgMessage,
+        imgmessage,
         date,
-        quantityReposts,
-        quantityLike,
-        quantityShare,
+        quantityreposts,
+        quantitylike,
+        quantityshare,
       ],
     );
     if (result.rows.length === 0) {
@@ -263,12 +272,13 @@ app.put('/posts/:id.json', async (req, res) => {
 
 app.post('/createUser', async (req, res) => {
   const { email, password } = req.body;
+  const username = email;
   const token = crypto.randomUUID();
   if (!email || !password) {
     return res.status(400).json({ error: 'email and password are required' });
   }
   try {
-    const existUser = await req.dbClient.query(
+    const existUser = await query(
       'SELECT * FROM users WHERE email = $1',
       [email],
     );
@@ -277,12 +287,12 @@ app.post('/createUser', async (req, res) => {
     }
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const createUser = await req.dbClient.query(
-      'INSERT INTO users(email, password) VALUES($1, $2) RETURNING id',
-      [email, hashPassword],
+    const createUser = await query(
+      'INSERT INTO users(email, password, username) VALUES($1, $2, $3) RETURNING id',
+      [email, hashPassword, username],
     );
-    console.log('user created', createUser.rows);
-    await req.dbClient.query('INSERT INTO sessions (userid, token) VALUES ($1, $2) RETURNING *', [createUser.rows[0].id, token]);
+    
+    await query('INSERT INTO sessions (user_id, token) VALUES ($1, $2) RETURNING *', [createUser.rows[0].id, token]);
     res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.cookie('email', email, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
@@ -297,12 +307,12 @@ app.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const token = crypto.randomUUID();
   try {
-    const result = await req.dbClient.query('SELECT * FROM users WHERE email = $1', [email]);
+    const result = await query('SELECT * FROM users WHERE email = $1', [email]);
     if (result.rows.length > 0) {
       const user = result.rows[0];
       const match = await bcrypt.compare(password, user.password);
       if (match) {
-        await req.dbClient.query('INSERT INTO sessions (userid, token) VALUES ($1, $2) RETURNING *', [user.id, token]);
+        await query('INSERT INTO sessions (user_id, token) VALUES ($1, $2) RETURNING *', [user.id, token]);
         res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
         res.cookie('email', email, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
         return res.status(200).json({ text: 'login successful' });
@@ -325,7 +335,7 @@ app.get('/protected-route', async (req, res) => {
   }
 
   try {
-    const result = await req.dbClient.query(
+    const result = await query(
       "SELECT * FROM sessions WHERE token = $1 AND created_at > NOW() - INTERVAL '7 days'",
       [token],
     );
@@ -368,9 +378,9 @@ app.put('/settings/profile', async (req, res) => {
   }
 
   try {
-    const session = await req.dbClient.query(`
+    const session = await query(`
       SELECT users.id FROM sessions
-      JOIN users ON sessions.userid = users.id
+      JOIN users ON sessions.user_id = users.id
       WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'
     `, [token]);
 
@@ -382,7 +392,7 @@ app.put('/settings/profile', async (req, res) => {
     const userId = session.rows[0].id;
 
     if (username) {
-      const exists = await req.dbClient.query(
+      const exists = await query(
         'SELECT id FROM users WHERE username = $1 AND id != $2',
         [username, userId],
       );
@@ -392,7 +402,7 @@ app.put('/settings/profile', async (req, res) => {
       }
     }
 
-    const updated = await req.dbClient.query(`
+    const updated = await query(`
       UPDATE users
       SET username = $1,
           nickname = $2,
@@ -434,9 +444,9 @@ app.put('/settings/password', async (req, res) => {
   }
 
   try {
-    const session = await req.dbClient.query(
+    const session = await query(
       `SELECT users.id, users.password, users.last_password_change FROM sessions 
-       JOIN users ON sessions.userid = users.id 
+       JOIN users ON sessions.user_id = users.id 
        WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'`,
       [token],
     );
@@ -465,7 +475,7 @@ app.put('/settings/password', async (req, res) => {
     }
 
     const now = new Date();
-    const lastChange = new Date(user.last_password_change);
+    const lastChange = user.last_password_change ? new Date(user.last_password_change) : new Date(0);
     const diffInHours = (now - lastChange) / (1000 * 60 * 60);
     if (diffInHours < 24) {
       return res.status(400).json({ error: 'Сменить пароль можно только раз в сутки' });
@@ -473,7 +483,7 @@ app.put('/settings/password', async (req, res) => {
 
     const hashNewPassword = await bcrypt.hash(newPassword, 10);
 
-    await req.dbClient.query(
+    await query(
       'UPDATE users SET password = $1, last_password_change = NOW()  WHERE id = $2',
       [hashNewPassword, user.id],
     );
@@ -494,9 +504,9 @@ app.put('/settings/email', async (req, res) => {
   }
 
   try {
-    const session = await req.dbClient.query(`
+    const session = await query(`
       SELECT users.id, users.email, users.password FROM sessions
-      JOIN users ON sessions.userid = users.id
+      JOIN users ON sessions.user_id = users.id
       WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'
     `, [token]);
 
@@ -515,12 +525,12 @@ app.put('/settings/email', async (req, res) => {
       return res.status(400).json({ error: 'Email совпадает с текущим' });
     }
 
-    const existing = await req.dbClient.query('SELECT id FROM users WHERE email = $1', [newEmail]);
+    const existing = await query('SELECT id FROM users WHERE email = $1', [newEmail]);
     if (existing.rows.length > 0) {
       return res.status(400).json({ error: 'Email уже используется' });
     }
 
-    await req.dbClient.query('UPDATE users SET email = $1 WHERE id = $2', [newEmail, user.id]);
+    await query('UPDATE users SET email = $1 WHERE id = $2', [newEmail, user.id]);
     res.cookie('email', newEmail, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     return res.status(200).json({ email: newEmail });
@@ -538,10 +548,10 @@ app.get('/me', async (req, res) => {
   }
 
   try {
-    const sessionResult = await req.dbClient.query(
+    const sessionResult = await query(
       `SELECT users.id
        FROM sessions
-       JOIN users ON sessions.userid = users.id
+       JOIN users ON sessions.user_id = users.id
        WHERE sessions.token = $1
          AND sessions.created_at > NOW() - INTERVAL '7 days'`,
       [token],
@@ -553,19 +563,19 @@ app.get('/me', async (req, res) => {
 
     const userId = sessionResult.rows[0].id;
 
-    const userResult = await req.dbClient.query(
+    const userResult = await query(
       `SELECT id, email, avatar_url, username, nickname, bio, geo, site, birthday, last_password_change, background
        FROM users
        WHERE id = $1`,
       [userId],
     );
 
-    const postsResult = await req.dbClient.query(
+    const postsResult = await query(
       `SELECT p.id, p.message, p.imgmessage, p.date,
               u.username, u.nickname, u.avatar_url
        FROM posts p
-       JOIN users u ON p.userid = u.id
-       WHERE p.userid = $1
+       JOIN users u ON p.user_id = u.id
+       WHERE p.user_id = $1
        ORDER BY p.date DESC`,
       [userId],
     );
@@ -585,7 +595,7 @@ app.get('/profile/:id', async (req, res) => {
   try {
     const userId = id;
 
-    const userResult = await req.dbClient.query(
+    const userResult = await query(
       'SELECT id, email, avatar_url, username, nickname, bio, geo, site, birthday, background FROM users WHERE id = $1',
       [userId],
     );
@@ -593,8 +603,8 @@ app.get('/profile/:id', async (req, res) => {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
 
-    const postsResult = await req.dbClient.query(
-      'SELECT id, message, imgmessage, date, quantityreposts, quantitylike, quantityshare FROM posts WHERE userid = $1 ORDER BY date DESC',
+    const postsResult = await query(
+      'SELECT id, message, imgmessage, date, quantityreposts, quantitylike, quantityshare FROM posts WHERE user_id = $1 ORDER BY date DESC',
       [userId],
     );
 
@@ -616,7 +626,7 @@ app.get('/subscriptions', async (req, res) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const result = await req.dbClient.query(
+    const result = await query(
       `SELECT u.id, u.username, u.nickname, u.avatar_url
        FROM subscriptions s
        JOIN users u ON u.id = s.user_id
@@ -640,7 +650,7 @@ app.post('/subscriptions/:userId', async (req, res) => {
     if (followerId === targetId) return res.status(400).json({ error: 'Cannot subscribe to yourself' });
 
     // const id = crypto.randomUUID();
-    const insert = await req.dbClient.query(
+    const insert = await query(
       `INSERT INTO subscriptions (follower_id, user_id)
        VALUES ($1, $2)
        ON CONFLICT (follower_id, user_id) DO NOTHING
@@ -669,7 +679,7 @@ app.delete('/subscriptions/:userId', async (req, res) => {
 
     const { userId } = req.params;
 
-    await req.dbClient.query(
+    await query(
       `DELETE FROM subscriptions 
        WHERE follower_id = $1 AND user_id = $2`,
       [currentUserId, userId],
@@ -694,7 +704,7 @@ app.get('/followers', async (req, res) => {
       WHERE s.user_id = $1
       ORDER BY s.created_at DESC
     `;
-    const result = await req.dbClient.query(q, [currentUserId]);
+    const result = await query(q, [currentUserId]);
     return res.json(result.rows);
   } catch (err) {
     console.error('followers list error', err);
@@ -713,7 +723,7 @@ app.get('/profile/:id/following', async (req, res) => {
       WHERE s.follower_id = $1
       ORDER BY s.created_at DESC
     `;
-    const result = await req.dbClient.query(q, [userId]);
+    const result = await query(q, [userId]);
     return res.json(result.rows);
   } catch (err) {
     console.error('profile following error', err);
@@ -732,7 +742,7 @@ app.get('/profile/:id/followers', async (req, res) => {
       WHERE s.user_id = $1
       ORDER BY s.created_at DESC
     `;
-    const result = await req.dbClient.query(q, [userId]);
+    const result = await query(q, [userId]);
     return res.json(result.rows);
   } catch (err) {
     console.error('profile followers error', err);
@@ -747,7 +757,7 @@ app.delete('/subscriptions/remove-follower/:followerId', async (req, res) => {
 
     const { followerId } = req.params;
 
-    const del = await req.dbClient.query(
+    const del = await query(
       'DELETE FROM subscriptions WHERE follower_id = $1 AND user_id = $2 RETURNING *',
       [followerId, currentUserId],
     );
@@ -764,36 +774,44 @@ app.delete('/subscriptions/remove-follower/:followerId', async (req, res) => {
 
 app.get('/popular-users', async (req, res) => {
   try {
-    const result = await req.dbClient.query(`
+    const userId = await getCurrentUserId(req);
+    if (!userId) return res.json([]); // ⭐ ВАЖНО
+
+    const result = await query(`
       SELECT 
         u.id,
         u.username,
         u.nickname,
         u.avatar_url,
-        COUNT(s.follower_id) AS followers_count
+        COUNT(s.follower_id)::int AS followers_count
       FROM users u
       LEFT JOIN subscriptions s ON u.id = s.user_id
-      GROUP BY u.id
+      GROUP BY 
+        u.id,
+        u.username,
+        u.nickname,
+        u.avatar_url
       ORDER BY followers_count DESC
       LIMIT 3
     `);
 
-    return res.json(result.rows);
+    res.json(result.rows);
   } catch (err) {
     console.error('popular users error', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 app.get('/feed', async (req, res) => {
   try {
     const currentUserId = await getCurrentUserId(req);
     if (!currentUserId) return res.status(401).json({ error: 'Пользователь не авторизован' });
 
-    const result = await req.dbClient.query(
+    const result = await query(
       `SELECT 
          p.id,
-         p.userid,
+         p.user_id,
          p.username,
          p.email,
          p.message,
@@ -804,9 +822,9 @@ app.get('/feed', async (req, res) => {
          p.quantityshare,
          u.avatar_url
        FROM posts p
-       JOIN users u ON p.userid = u.id
-       WHERE p.userid = $1
-          OR p.userid IN (SELECT user_id FROM subscriptions WHERE follower_id = $1)
+       JOIN users u ON p.user_id = u.id
+       WHERE p.user_id = $1
+          OR p.user_id IN (SELECT user_id FROM subscriptions WHERE follower_id = $1)
        ORDER BY p.date DESC
        LIMIT 200`,
       [currentUserId],
@@ -823,7 +841,7 @@ app.get('/hashtag/:tag', async (req, res) => {
   const { tag } = req.params;
 
   try {
-    const result = await req.dbClient.query(`
+    const result = await query(`
       SELECT 
         p.id,
         p.message,
@@ -835,7 +853,7 @@ app.get('/hashtag/:tag', async (req, res) => {
       FROM post_hashtags ph
       JOIN hashtags h ON h.id = ph.hashtag_id
       JOIN posts p ON p.id = ph.post_id
-      JOIN users u ON u.id = p.userid
+      JOIN users u ON u.id = p.user_id
       WHERE h.tag = $1
       ORDER BY p.date DESC
     `, [tag.toLowerCase()]);
@@ -849,11 +867,14 @@ app.get('/hashtag/:tag', async (req, res) => {
 
 app.get('/hashtags/popular', async (req, res) => {
   try {
-    const result = await req.dbClient.query(`
-      SELECT h.tag, COUNT(ph.post_id) AS count
+    const userId = await getCurrentUserId(req);
+    if (!userId) return res.json([]); // ⭐
+
+    const result = await query(`
+      SELECT h.tag, COUNT(ph.post_id)::int AS count
       FROM hashtags h
       JOIN post_hashtags ph ON ph.hashtag_id = h.id
-      GROUP BY h.id
+      GROUP BY h.id, h.tag
       ORDER BY count DESC
       LIMIT 3
     `);
@@ -874,9 +895,9 @@ app.post('/like', async (req, res) => {
   }
 
   try {
-    const session = await req.dbClient.query(
+    const session = await query(
       `SELECT users.id FROM sessions 
-       JOIN users ON sessions.userid = users.id
+       JOIN users ON sessions.user_id = users.id
        WHERE sessions.token = $1
          AND sessions.created_at > NOW() - INTERVAL '7 days'`,
       [token],
@@ -886,7 +907,7 @@ app.post('/like', async (req, res) => {
 
     const userId = session.rows[0].id;
 
-    await req.dbClient.query(
+    await query(
       `INSERT INTO likes (user_id, post_id)
        VALUES ($1, $2)
        ON CONFLICT (user_id, post_id) DO NOTHING`,
@@ -909,9 +930,9 @@ app.delete('/like', async (req, res) => {
   }
 
   try {
-    const session = await req.dbClient.query(
+    const session = await query(
       `SELECT users.id FROM sessions 
-       JOIN users ON sessions.userid = users.id
+       JOIN users ON sessions.user_id = users.id
        WHERE sessions.token = $1
          AND sessions.created_at > NOW() - INTERVAL '7 days'`,
       [token],
@@ -921,7 +942,7 @@ app.delete('/like', async (req, res) => {
 
     const userId = session.rows[0].id;
 
-    await req.dbClient.query(
+    await query(
       'DELETE FROM likes WHERE user_id = $1 AND post_id = $2',
       [userId, postId],
     );
@@ -937,7 +958,7 @@ app.get('/posts/:postId/likes', async (req, res) => {
   const { postId } = req.params;
 
   try {
-    const result = await req.dbClient.query(
+    const result = await query(
       'SELECT COUNT(*) AS count FROM likes WHERE post_id = $1',
       [postId],
     );
@@ -949,6 +970,16 @@ app.get('/posts/:postId/likes', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, 'dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}`);
 });

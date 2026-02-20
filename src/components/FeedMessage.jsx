@@ -33,7 +33,7 @@ const FeedMessage = () => {
     }, [message]);
 
     const handleFileUpload = (fileInfo) => {
-      console.log("загруженный файл:", fileInfo);
+      
       setImgUrl(fileInfo.cdnUrl);
     };
 
@@ -61,7 +61,7 @@ const FeedMessage = () => {
       <div className={styles.myMessage}>
         <form className={styles.form} onSubmit={handleSubmit}>
       
-        <input type="text" className={styles.input} placeholder="Что нового, Александр?" value={message} onChange={(e) => setMessage(e.target.value)} />
+        <input type="text" className={styles.input} placeholder="Что нового?" value={message} onChange={(e) => setMessage(e.target.value)} />
         <div className={styles["message-preview"]}>
         {message || "Кто-то хочет поиграть в настольный теннис?"}
         </div>
