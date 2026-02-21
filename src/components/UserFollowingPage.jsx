@@ -36,7 +36,7 @@ const UserFollowingPage = () => {
   return (
     <div className={styles.container}>
       <h2>Подписки пользователя</h2>
-      {items.map(u => (
+      {Array.isArray(items) && items.map(u => (
         <div key={u.id} className={styles.userCard}>
           <img src={u.avatar_url || '/images/anonavatar.svg'} alt="" className={styles.avatar}/>
           <div className={styles.info}>

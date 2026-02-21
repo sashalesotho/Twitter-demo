@@ -16,7 +16,7 @@ const MessagesList = () => {
     dispatch(fetchFeed());
   }, [dispatch]);
 
-  let messages = posts.map((post) => (
+  let messages = Array.isArray(posts) && posts.map((post) => (
     <Message
       key={post.id || `message-${index}`}
       post={post}

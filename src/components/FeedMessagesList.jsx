@@ -31,7 +31,7 @@ const FeedMessagesList = () => {
       return <div className={styles.container}>Ошибка загрузки постов: {error}</div>;
     }
 
-  const messages = posts.map((post) => (
+  const messages = Array.isArray(posts) && posts.map((post) => (
       <Message
       key={post.id} post={post}
     />

@@ -31,7 +31,7 @@ return (
 
 
 <div className="flex flex-col gap-4">
-{posts.map((post) => (
+{Array.isArray(posts) && posts.map((post) => (
 <Message key={post.id}
   post={post} />
 ))}
