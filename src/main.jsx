@@ -16,10 +16,12 @@ import PasswordSettingsPage from './components/PasswordSettingsPage.jsx'
 import EmailSettingsPage from './components/EmailSettingsPage.jsx'
 import ProfileSettingsMenu from './components/ProfileSettingsMenu.jsx'
 import HashtagPage from './components/HashtagPage.jsx'
+import ErrorBoundary from './ErrorBoundary.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
+      <ErrorBoundary>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />}/>
@@ -41,6 +43,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       
         </Routes>
       </BrowserRouter>
+      </ErrorBoundary>
     </Provider>
     
   </React.StrictMode>

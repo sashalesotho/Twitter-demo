@@ -41,8 +41,8 @@ const MessagesList = () => {
         </div>
       
       <div className={styles['right-desktop-body']}>
-      {/* <Topics />
-      <Blogers /> */}
+      <Topics />
+      <Blogers />
       </div>
       </div>
       
