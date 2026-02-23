@@ -16,12 +16,13 @@ const MessagesList = () => {
     dispatch(fetchFeed());
   }, [dispatch]);
 
-  let messages = Array.isArray(posts) && posts.map((post) => (
+  let messages = Array.isArray(posts) ? posts.map((post, index) => (
     <Message
       key={post.id || `message-${index}`}
       post={post}
     />
-    ));
+    ))
+    : null;
 
   return (
     <div className={styles.container}>
@@ -39,7 +40,7 @@ const MessagesList = () => {
       )}
         </div>
       
-      <div className={['right-desktop-body']}>
+      <div className={styles['right-desktop-body']}>
       <Topics />
       <Blogers />
       </div>
