@@ -21,9 +21,7 @@ function App() {
     }
   }, [navigate]);
 
-  window.addEventListener('error', (event) => {
-    console.log('Global Error Event:', event);
-  });
+  
 
   return (
     <div className='container'>
@@ -38,7 +36,7 @@ function App() {
       </div>
       
       <Statistics />
-      <MessagesList />
+      {/* <MessagesList /> */}
       <Registration2 />
       
     </div>
