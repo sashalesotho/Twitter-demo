@@ -31,7 +31,9 @@ const feedSlice = createSlice({
       .addCase(fetchFeed.fulfilled, (state, action) => {
         state.loading = false;
         if (Array.isArray(action.payload)) {
-          state.posts = action.payload;
+          state.loading = false;
+          console.log('feed payload:', action.payload)
+          state.posts = action.payload || [];
         } else if (Array.isArray(action.payload?.posts)) {
           state.posts = action.payload.posts;
         } else {
