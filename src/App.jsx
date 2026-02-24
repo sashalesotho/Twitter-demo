@@ -21,6 +21,10 @@ function App() {
     }
   }, [navigate]);
 
+  window.addEventListener('error', (event) => {
+    console.log('Global Error Event:', event);
+  });
+
   return (
     <div className='container'>
       <div className="header">
