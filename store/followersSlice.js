@@ -40,7 +40,9 @@ const followersSlice = createSlice({
       })
       .addCase(fetchFollowers.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload || [];
+        state.items = Array.isArray(action.payload)
+  ? action.payload
+  : [];
       })
       .addCase(fetchFollowers.rejected, (state, action) => {
         state.loading = false;
