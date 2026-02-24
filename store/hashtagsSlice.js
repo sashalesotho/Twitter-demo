@@ -51,11 +51,14 @@ const hashtagsSlice = createSlice({
       })
       .addCase(fetchPostsByHashtag.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.byTag[action.payload.tag] = action.payload.posts;
+        const posts = Array.isArray(action.payload.posts) ? action.payload.posts : [];
+        state.byTag[action.payload.tag] = posts;
       })
       .addCase(fetchPostsByHashtag.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
+        state.byTag[action.meta.arg] = [];
+
       });
   },
 });
