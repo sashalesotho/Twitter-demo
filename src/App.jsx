@@ -36,7 +36,7 @@ function App() {
       </div>
       
       <Statistics />
-      {/* <MessagesList /> */}
+      <MessagesList />
       <Registration2 />
       
     </div>

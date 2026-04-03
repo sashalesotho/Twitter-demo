@@ -4,7 +4,7 @@ export const fetchFeed = createAsyncThunk(
   'feed/fetchFeed',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await fetch('/api/feed', { credentials: 'include' });
+      const res = await fetch('/feed', { credentials: 'include' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) return rejectWithValue(data.error || 'Ошибка при получении фида');
       return data;
