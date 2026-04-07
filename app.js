@@ -28,7 +28,7 @@ const pool = new Pool({
 // app.use(express.static('public'));
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'https://twitter-clone-nr9o.onrender.com',
   credentials: true,
 }));
 app.use(express.json());
@@ -313,7 +313,8 @@ app.post('/login', async (req, res) => {
       const match = await bcrypt.compare(password, user.password);
       if (match) {
         await query('INSERT INTO sessions (user_id, token) VALUES ($1, $2) RETURNING *', [user.id, token]);
-        res.cookie('token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+        res.cookie('token', token, { httpOnly: true, secure: true,
+          sameSite: 'none', maxAge: 7 * 24 * 60 * 60 * 1000 });
         res.cookie('email', email, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
         return res.status(200).json({ text: 'login successful' });
       }
