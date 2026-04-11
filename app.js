@@ -28,7 +28,10 @@ const pool = new Pool({
 // app.use(express.static('public'));
 
 app.use(cors({
-  origin: 'https://twitter-clone-nr9o.onrender.com',
+  origin: [
+    'https://twitter-clone-nr9o.onrender.com',
+    'https://twitter-demo-frontend.onrender.com'
+  ],
   credentials: true,
 }));
 app.use(express.json());
