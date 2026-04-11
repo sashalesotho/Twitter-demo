@@ -922,9 +922,9 @@ app.post('/like', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => {
-  res.send('SERVER WORKS');
-});
+// app.get('/', (req, res) => {
+//   res.send('SERVER WORKS');
+// });
 
 app.delete('/like', async (req, res) => {
   const { token } = req.cookies;
