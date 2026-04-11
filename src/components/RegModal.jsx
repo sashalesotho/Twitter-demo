@@ -41,7 +41,7 @@ const RegModal = ({ active, setActive }) => {
       
       try {
         if (isValid()) {
-          const res = await fetch("http://localhost:3000/createUser", {
+          const res = await fetch("https://twitter-demo-backend.onrender.com/createUser", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

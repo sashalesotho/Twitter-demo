@@ -4,7 +4,7 @@ export const likePost = createAsyncThunk(
   'likes/likePost',
   async (postId, { rejectWithValue }) => {
     try {
-      const res = await fetch('http://localhost:3000/like', {
+      const res = await fetch('https://twitter-demo-backend.onrender.com/like', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -22,7 +22,7 @@ export const unlikePost = createAsyncThunk(
   'likes/unlikePost',
   async (postId, { rejectWithValue }) => {
     try {
-      const res = await fetch('http://localhost:3000/like', {
+      const res = await fetch('https://twitter-demo-backend.onrender.com/like', {
         method: 'DELETE',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

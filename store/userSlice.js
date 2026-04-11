@@ -4,7 +4,7 @@ export const fetchCurrentUser = createAsyncThunk(
   'user/fetchCurrentUser',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await fetch('http://localhost:3000/me', {
+      const res = await fetch('https://twitter-demo-backend.onrender.com/me', {
         credentials: 'include',
       });
 

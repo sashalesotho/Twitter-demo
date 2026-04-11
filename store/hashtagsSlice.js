@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchPopularHashtags = createAsyncThunk(
   'hashtags/fetchPopular',
   async () => {
-    const res = await fetch('http://localhost:3000/hashtags/popular', {
+    const res = await fetch('https://twitter-demo-backend.onrender.com/hashtags/popular', {
       credentials: 'include',
     });
     return res.json();
@@ -14,7 +14,7 @@ export const fetchPopularHashtags = createAsyncThunk(
 export const fetchPostsByHashtag = createAsyncThunk(
   'hashtags/fetchPostsByTag',
   async (tag) => {
-    const res = await fetch(`http://localhost:3000/hashtag/${tag}`, {
+    const res = await fetch(`https://twitter-demo-backend.onrender.com/hashtag/${tag}`, {
       credentials: 'include',
     });
     const posts = await res.json();
