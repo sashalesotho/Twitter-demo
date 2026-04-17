@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import validateEmail from "../../assets/is_valid_email";
 import styles from "../styles/Modal.module.css";
-import { API_URL } from "../config";
 const RegModal = ({ active, setActive }) => {
   const swipe = useRef();
   const [emailError, setEmailError] = useState("");
@@ -42,7 +41,7 @@ const RegModal = ({ active, setActive }) => {
       
       try {
         if (isValid()) {
-          const res = await (`${API_URL}/createUser`, {
+          const res = await fetch(`https://twitter-demo-backend.onrender.com/createUser`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
