@@ -1,10 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_URL } from '../src/config';
 
-// Получить топ-3 популярных хештега
 export const fetchPopularHashtags = createAsyncThunk(
   'hashtags/fetchPopular',
   async () => {
-    const res = await fetch('https://twitter-demo-backend.onrender.com/hashtags/popular', {
+    const res = await fetch(`${API_URL}/hashtags/popular`, {
       credentials: 'include',
     });
     return res.json();
@@ -33,7 +33,6 @@ const hashtagsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-    // popular
       .addCase(fetchPopularHashtags.pending, (state) => {
         state.status = 'loading';
       })

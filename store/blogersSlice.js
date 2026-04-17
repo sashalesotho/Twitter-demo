@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_URL } from '../src/config';
 
 export const fetchPopularUsers = createAsyncThunk(
   'blogers/fetchPopularUsers',
   async () => {
-    const res = await fetch('https://twitter-demo-backend.onrender.com/popular-users', {
+    const res = await fetch(`${API_URL}/popular-users`, {
       credentials: 'include',
     });
     return res.json();

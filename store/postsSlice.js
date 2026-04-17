@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { likePost, unlikePost } from './likesSlice.js';
+import { API_URL } from '../src/config';
 
 export const addPost = createAsyncThunk('posts/addPost', async ({ message, image }) => {
-  const response = await fetch('/posts', {
+  const response = await fetch(`${API_URL}/posts`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',

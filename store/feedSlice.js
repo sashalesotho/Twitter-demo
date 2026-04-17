@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_URL } from '../src/config';
 
 export const fetchFeed = createAsyncThunk(
   'feed/fetchFeed',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await fetch('/feed', { credentials: 'include' });
+      const res = await fetch(`${API_URL}/feed`, { credentials: 'include' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) return rejectWithValue(data.error || 'Ошибка при получении фида');
       return data;

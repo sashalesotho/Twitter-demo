@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { unsubscribeUser } from './subscriptionSlice.js';
+import { API_URL } from '../src/config';
 
 export const fetchSubscriptions = createAsyncThunk(
   'subscriptions/fetchSubscriptions.js',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await fetch('/api/subscriptions', { credentials: 'include' });
+      const res = await fetch(`${API_URL}/api/subscriptions`, { credentials: 'include' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) return rejectWithValue(data.error || 'Ошибка при получении подписок');
       return data;

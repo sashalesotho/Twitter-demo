@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_URL } from '../src/config';
 
 export const subscribeUser = createAsyncThunk(
   'subscription/subscribeUser',
   async (userId, { rejectWithValue }) => {
     try {
-      const res = await fetch(`/api/subscriptions/${userId}`, {
+      const res = await fetch(`${API_URL}/api/subscriptions/${userId}`, {
         method: 'POST',
         credentials: 'include',
       });

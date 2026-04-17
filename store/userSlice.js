@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_URL } from '../src/config';
 
 export const fetchCurrentUser = createAsyncThunk(
   'user/fetchCurrentUser',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await fetch('https://twitter-demo-backend.onrender.com/me', {
+      const res = await fetch(`${API_URL}/me`, {
         credentials: 'include',
       });
 

@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_URL } from '../src/config';
 
 export const likePost = createAsyncThunk(
   'likes/likePost',
   async (postId, { rejectWithValue }) => {
     try {
-      const res = await fetch('https://twitter-demo-backend.onrender.com/like', {
+      const res = await fetch(`${API_URL}/like`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

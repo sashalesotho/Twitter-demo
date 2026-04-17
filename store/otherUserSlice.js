@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { API_URL } from '../src/config';
 
 export const fetchOtherUser = createAsyncThunk(
   'otherUser/fetchOtherUser',
@@ -6,7 +7,7 @@ export const fetchOtherUser = createAsyncThunk(
     console.log('URL:', `/api/profile/${userId}`);
 
     try {
-      const res = await fetch(`/api/profile/${userId}`, {
+      const res = await fetch(`${API_URL}/api/profile/${userId}`, {
         credentials: 'include',
       });
 

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-// import { fetchFeed } from './feedSlice.js';
+import { API_URL } from '../src/config';
+
 import {
   subscribeUser,
   unsubscribeUser,
@@ -10,7 +11,7 @@ export const fetchFollowers = createAsyncThunk(
   'followers/fetchFollowers',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await fetch('/api/followers', { credentials: 'include' });
+      const res = await fetch(`${API_URL}/api/followers`, { credentials: 'include' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         return rejectWithValue(
