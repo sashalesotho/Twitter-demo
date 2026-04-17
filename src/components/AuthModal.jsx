@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "../styles/Modal.module.css";
+import { API_URL } from "../config";
 const AuthModal = ({ active, setActive }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +40,7 @@ const AuthModal = ({ active, setActive }) => {
    
     try {
       if (isValid(this) === true) {
-        fetch("/login", {
+        fetch(`${API_URL}/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
