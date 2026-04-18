@@ -58,7 +58,7 @@ const AuthModal = ({ active, setActive }) => {
                 throw new Error(error.error || "unknown error");
               });
             }
-            window.location.href = '/feed';
+            window.location.href = `${API_URL}/feed`;
             return res.json();
           })
           .then((data) => {
