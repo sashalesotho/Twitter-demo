@@ -1,7 +1,10 @@
+import { useDispatch } from "react-redux";
+import { loginUser } from "../../store/userSlice";
 import { useEffect, useRef, useState } from "react";
 import validateEmail from "../../assets/is_valid_email";
 import styles from "../styles/Modal.module.css";
 import { API_URL } from "../config";
+import { useNavigate } from "react-router-dom";
 const RegModal = ({ active, setActive }) => {
   const swipe = useRef();
   const [emailError, setEmailError] = useState("");
@@ -10,6 +13,8 @@ const RegModal = ({ active, setActive }) => {
   const [password, setPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const isValid = () => {
     let result = true;
@@ -61,7 +66,8 @@ const RegModal = ({ active, setActive }) => {
           setEmail('');
           setPassword('');
           setCheckPassword('');
-          window.location.href = `${API_URL}/feed`;
+          await dispatch(loginUser({ email, password }))
+          navigate('/feed');
         }
       } catch (error) {
         console.error("server error", error);

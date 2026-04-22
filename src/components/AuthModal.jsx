@@ -1,6 +1,8 @@
+import { useDispatch } from "react-redux";
+import { loginUser } from "../../store/userSlice";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import styles from "../styles/Modal.module.css";
-import { API_URL } from "../config";
 const AuthModal = ({ active, setActive }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -8,6 +10,8 @@ const AuthModal = ({ active, setActive }) => {
   const [passwordError, setPasswordError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const swipe = useRef();
   useEffect(() => {
@@ -30,51 +34,29 @@ const AuthModal = ({ active, setActive }) => {
     }
     return result;
   };
-  const loginHandler = (e) => {
+  const loginHandler = async (e) => {
     e.preventDefault();
-    setEmail("");
-    setPassword("");
+  
+    setEmailError("");
+    setPasswordError("");
     setSuccessMessage("");
     setErrorMessage("");
-
-   
+  
+    if (!isValid()) return;
+  
     try {
-      if (isValid(this) === true) {
-        fetch(`${API_URL}/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email,
-            password: password,
-          }),
-        })
-          .then((res) => {
-            if (!res.ok) {
-              return res.json().then((error) => {
-                setErrorMessage("wrong email or wrong password");
-                setSuccessMessage("")
-                throw new Error(error.error || "unknown error");
-              });
-            }
-            window.location.href = `${API_URL}/feed`;
-            return res.json();
-          })
-          .then((data) => {
-            setSuccessMessage("authorization was successful");
-            setErrorMessage("")
-          })
-          .catch((error) => {
-            setErrorMessage("wrong email or wrong password")
-            setSuccessMessage("")
-            console.log("network error", error);
-          });
+      const res = await dispatch(loginUser({ email, password }));
+  
+      if (loginUser.fulfilled.match(res)) {
+        setSuccessMessage("authorization was successful");
+        setErrorMessage("");
+        navigate("/feed");
+      } else {
+        setErrorMessage(res.payload || "wrong email or password");
+        setSuccessMessage("");
       }
-    } catch (error) {
-      setSuccessMessage("")
-      setErrorMessage("wrong email or wrong password");
-      console.log("server error", error);
+    } catch (err) {
+      setErrorMessage("network error");
     }
   };
   return (

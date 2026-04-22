@@ -1,6 +1,30 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { API_URL } from '../src/config';
 
+export const loginUser = createAsyncThunk(
+  'user/loginUser',
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        return rejectWithValue(data.error || 'Ошибка логина');
+      }
+
+      return data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  },
+);
+
 export const fetchCurrentUser = createAsyncThunk(
   'user/fetchCurrentUser',
   async (_, { rejectWithValue }) => {
@@ -170,6 +194,18 @@ const userSlice = createSlice({
         state.user = action.payload.profile;
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
