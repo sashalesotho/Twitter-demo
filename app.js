@@ -31,7 +31,6 @@ const pool = new Pool({
 
 app.use(cors({
   origin: [
-    'https://twitter-clone-nr9o.onrender.com',
     'https://twitter-demo-frontend.onrender.com'
   ],
   credentials: true,
