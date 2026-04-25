@@ -301,11 +301,9 @@ app.post('/createUser', async (req, res) => {
     await query('INSERT INTO sessions (user_id, token) VALUES ($1, $2) RETURNING *', [createUser.rows[0].id, token]);
     res.cookie('token', token, { httpOnly: true, secure: true,
       sameSite: 'none',
-      domain: '.onrender.com',
       path: '/', maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.cookie('email', email, { httpOnly: true, secure: true,
       sameSite: 'none',
-      domain: '.onrender.com',
       path: '/', maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     return res.status(200).json({ message: 'user created successfully' });
@@ -326,10 +324,9 @@ app.post('/login', async (req, res) => {
       if (match) {
         await query('INSERT INTO sessions (user_id, token) VALUES ($1, $2) RETURNING *', [user.id, token]);
         res.cookie('token', token, { httpOnly: true, secure: true,
-          sameSite: 'none', domain: '.onrender.com', path: '/', maxAge: 7 * 24 * 60 * 60 * 1000 });
+          sameSite: 'none', path: '/', maxAge: 7 * 24 * 60 * 60 * 1000 });
         res.cookie('email', email, { httpOnly: true, secure: true,
           sameSite: 'none',
-          domain: '.onrender.com',
           path: '/', maxAge: 7 * 24 * 60 * 60 * 1000 });
         return res.status(200).json({ text: 'login successful' });
       }
@@ -549,7 +546,6 @@ app.put('/settings/email', async (req, res) => {
     await query('UPDATE users SET email = $1 WHERE id = $2', [newEmail, user.id]);
     res.cookie('email', newEmail, { httpOnly: true, secure: true,
       sameSite: 'none',
-      domain: '.onrender.com',
       path: '/', maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     return res.status(200).json({ email: newEmail });
