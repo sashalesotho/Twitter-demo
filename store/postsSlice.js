@@ -21,7 +21,7 @@ throw new Error(errorData?.error || "Ошибка при сохранении п
 });
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
-  const response = await fetch('/posts', { credentials: 'include' });
+  const response = await fetch(`${API_URL}/posts`, { credentials: 'include' });
   const data = await response.json();
   return data.posts ?? data;
 });
