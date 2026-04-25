@@ -79,7 +79,6 @@ async function query(text, params) {
         `SELECT user_id
          FROM sessions
          WHERE token = $1
-           AND created_at > NOW() - INTERVAL '7 days'
          LIMIT 1`,
         [token]
       );
@@ -132,8 +131,7 @@ app.post('/posts', async (req, res) => {
       `SELECT users.id, users.email 
        FROM sessions 
        JOIN users ON sessions.user_id = users.id 
-       WHERE sessions.token = $1 
-         AND sessions.created_at > NOW() - INTERVAL '7 days'`,
+       WHERE sessions.token = $1`,
       [token],
     );
 
@@ -349,7 +347,7 @@ app.get('/protected-route', async (req, res) => {
 
   try {
     const result = await query(
-      "SELECT * FROM sessions WHERE token = $1 AND created_at > NOW() - INTERVAL '7 days'",
+      `SELECT * FROM sessions WHERE token = $1`,
       [token],
     );
 
@@ -394,8 +392,7 @@ app.put('/settings/profile', async (req, res) => {
     const session = await query(`
       SELECT users.id FROM sessions
       JOIN users ON sessions.user_id = users.id
-      WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'
-    `, [token]);
+      WHERE sessions.token = $1`, [token]);
 
     if (session.rows.length === 0) {
       res.status(401).json({ error: 'Сессия недействительна' });
@@ -460,7 +457,7 @@ app.put('/settings/password', async (req, res) => {
     const session = await query(
       `SELECT users.id, users.password, users.last_password_change FROM sessions 
        JOIN users ON sessions.user_id = users.id 
-       WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'`,
+       WHERE sessions.token = $1`,
       [token],
     );
 
@@ -520,8 +517,7 @@ app.put('/settings/email', async (req, res) => {
     const session = await query(`
       SELECT users.id, users.email, users.password FROM sessions
       JOIN users ON sessions.user_id = users.id
-      WHERE sessions.token = $1 AND sessions.created_at > NOW() - INTERVAL '7 days'
-    `, [token]);
+      WHERE sessions.token = $1`, [token]);
 
     if (session.rows.length === 0) {
       return res.status(401).json({ error: 'Сессия не найдена или истекла' });
@@ -567,8 +563,7 @@ app.get('/me', async (req, res) => {
       `SELECT users.id
        FROM sessions
        JOIN users ON sessions.user_id = users.id
-       WHERE sessions.token = $1
-         AND sessions.created_at > NOW() - INTERVAL '7 days'`,
+       WHERE sessions.token = $1`,
       [token],
     );
 
@@ -913,8 +908,7 @@ app.post('/like', async (req, res) => {
     const session = await query(
       `SELECT users.id FROM sessions 
        JOIN users ON sessions.user_id = users.id
-       WHERE sessions.token = $1
-         AND sessions.created_at > NOW() - INTERVAL '7 days'`,
+       WHERE sessions.token = $1`,
       [token],
     );
 
@@ -952,8 +946,7 @@ app.delete('/like', async (req, res) => {
     const session = await query(
       `SELECT users.id FROM sessions 
        JOIN users ON sessions.user_id = users.id
-       WHERE sessions.token = $1
-         AND sessions.created_at > NOW() - INTERVAL '7 days'`,
+       WHERE sessions.token = $1`,
       [token],
     );
 
