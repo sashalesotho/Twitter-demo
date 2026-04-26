@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchFeed } from "../../store/feedSlice";
 import convertTime from "../../assets/convert_time";
 import styles from "../styles/MessagesList.module.css";
 import MessageLoader from "./MessageLoader";
 import Message from "./Message";
 import Blogers from "./Blogers";
 import Topics from "./Topics";
+import { fetchPosts } from "../../store/postsSlice";
 
 const MessagesList = () => {
   const dispatch = useDispatch();
   const { posts, loading, error } = useSelector((state) => state.feed);
 
   useEffect(()=> {
-    dispatch(fetchFeed());
+    dispatch(fetchPosts());
   }, [dispatch]);
 
   let messages = Array.isArray(posts) ? posts.map((post, index) => (

@@ -167,7 +167,7 @@ app.post('/posts', async (req, res) => {
 
     try {
       const hashtags = message.toLowerCase().match(/#[\p{L}\p{N}_]+/gu) || [];
-      const tags = [...new Set(hashtags.map((t) => t.slice(1)))]; // без повторов и #
+      const tags = [...new Set(hashtags.map((t) => t.slice(1)))]; 
 
       for (const tag of tags) {
         // eslint-disable-next-line no-await-in-loop
@@ -638,7 +638,7 @@ app.get('/subscriptions', async (req, res) => {
 
     const result = await query(
       `SELECT u.id, u.username, u.nickname, u.avatar_url
-       FROM subscriptions s
+       FROM  s
        JOIN users u ON u.id = s.user_id
        WHERE s.follower_id = $1`,
       [followerId],
@@ -646,7 +646,7 @@ app.get('/subscriptions', async (req, res) => {
 
     return res.json(result.rows);
   } catch (err) {
-    console.error('get subscriptions error', err);
+    console.error('get  error', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -661,7 +661,7 @@ app.post('/subscriptions/:userId', async (req, res) => {
 
     // const id = crypto.randomUUID();
     const insert = await query(
-      `INSERT INTO subscriptions (follower_id, user_id)
+      `INSERT INTO  (follower_id, user_id)
        VALUES ($1, $2)
        ON CONFLICT (follower_id, user_id) DO NOTHING
        RETURNING *`,
@@ -690,7 +690,7 @@ app.delete('/subscriptions/:userId', async (req, res) => {
     const { userId } = req.params;
 
     await query(
-      `DELETE FROM subscriptions 
+      `DELETE FROM  
        WHERE follower_id = $1 AND user_id = $2`,
       [currentUserId, userId],
     );
@@ -709,7 +709,7 @@ app.get('/followers', async (req, res) => {
 
     const q = `
       SELECT u.id, u.username, u.nickname, u.avatar_url, u.bio, s.created_at as subscribed_at
-      FROM subscriptions s
+      FROM  s
       JOIN users u ON s.follower_id = u.id
       WHERE s.user_id = $1
       ORDER BY s.created_at DESC
@@ -728,7 +728,7 @@ app.get('/profile/:id/following', async (req, res) => {
 
     const q = `
       SELECT u.id, u.username, u.nickname, u.avatar_url, u.bio, s.created_at as subscribed_at
-      FROM subscriptions s
+      FROM 
       JOIN users u ON s.user_id = u.id
       WHERE s.follower_id = $1
       ORDER BY s.created_at DESC
@@ -747,7 +747,7 @@ app.get('/profile/:id/followers', async (req, res) => {
 
     const q = `
       SELECT u.id, u.username, u.nickname, u.avatar_url, u.bio, s.created_at as subscribed_at
-      FROM subscriptions s
+      FROM  s
       JOIN users u ON s.follower_id = u.id
       WHERE s.user_id = $1
       ORDER BY s.created_at DESC
@@ -768,7 +768,7 @@ app.delete('/subscriptions/remove-follower/:followerId', async (req, res) => {
     const { followerId } = req.params;
 
     const del = await query(
-      'DELETE FROM subscriptions WHERE follower_id = $1 AND user_id = $2 RETURNING *',
+      'DELETE FROM  WHERE follower_id = $1 AND user_id = $2 RETURNING *',
       [followerId, currentUserId],
     );
 
@@ -785,7 +785,7 @@ app.delete('/subscriptions/remove-follower/:followerId', async (req, res) => {
 app.get('/popular-users', async (req, res) => {
   try {
     const userId = await getCurrentUserId(req);
-    if (!userId) return res.json([]); // ⭐ ВАЖНО
+    if (!userId) return res.json([]); 
 
     const result = await query(`
       SELECT 
@@ -795,7 +795,7 @@ app.get('/popular-users', async (req, res) => {
         u.avatar_url,
         COUNT(s.follower_id)::int AS followers_count
       FROM users u
-      LEFT JOIN subscriptions s ON u.id = s.user_id
+      LEFT JOIN  s ON u.id = s.user_id
       GROUP BY 
         u.id,
         u.username,
@@ -878,7 +878,7 @@ app.get('/hashtag/:tag', async (req, res) => {
 app.get('/hashtags/popular', async (req, res) => {
   try {
     const userId = await getCurrentUserId(req);
-    if (!userId) return res.json([]); // ⭐
+    if (!userId) return res.json([]); 
 
     const result = await query(`
       SELECT h.tag, COUNT(ph.post_id)::int AS count
