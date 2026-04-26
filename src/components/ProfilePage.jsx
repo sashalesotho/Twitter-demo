@@ -33,7 +33,6 @@ const ProfilePage = () => {
   console.log('Ошибка otherUser:', otherError);
 
   useEffect(() => {
-    dispatch(fetchCurrentUser());
 
     if (id) {
       dispatch(fetchOtherUser(id));
@@ -43,8 +42,12 @@ const ProfilePage = () => {
   }, [dispatch, id]);
 
   useEffect(() => {
-    dispatch(fetchFeed());
+    dispatch(fetchCurrentUser());
   }, [dispatch]);
+
+  // useEffect(() => {
+  //   dispatch(fetchFeed());
+  // }, [dispatch]);
   const isOther = Boolean(id);
   const currentLoading = isOther ? otherLoading : loading;
   const currentError = isOther ? otherError : error;
