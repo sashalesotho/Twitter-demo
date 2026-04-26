@@ -49,7 +49,7 @@ export const updateEmail = createAsyncThunk(
   'user/updateEmail',
   async ({ newEmail, password }, { rejectWithValue }) => {
     try {
-      const res = await fetch('/settings/email', {
+      const res = await fetch(`${API_URL}/settings/email`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -72,7 +72,7 @@ export const updatePassword = createAsyncThunk(
   'user/updatePassword',
   async ({ oldPassword, newPassword, confirmPassword }, { rejectWithValue }) => {
     try {
-      const res = await fetch('/settings/password', {
+      const res = await fetch(`${API_URL}/settings/password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -97,7 +97,7 @@ export const updateProfile = createAsyncThunk(
     username, nickname, bio, geo, site, birthday, avatarUrl,
   }, { rejectWithValue }) => {
     try {
-      const res = await fetch('/settings/profile', {
+      const res = await fetch(`${API_URL}/settings/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

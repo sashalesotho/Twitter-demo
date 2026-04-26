@@ -22,7 +22,7 @@ export const unsubscribeUser = createAsyncThunk(
   'subscription/unsubscribeUser',
   async (userId, { rejectWithValue }) => {
     try {
-      const res = await fetch(`/api/subscriptions/${userId}`, {
+      const res = await fetch(`${API_URL}/subscriptions/${userId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -39,7 +39,7 @@ export const removeFollower = createAsyncThunk(
   'subscription/removeFollower',
   async (followerId, { rejectWithValue }) => {
     try {
-      const res = await fetch(`/api/subscriptions/remove-follower/${followerId}`, {
+      const res = await fetch(`${API_URL}/subscriptions/remove-follower/${followerId}`, {
         method: 'DELETE',
         credentials: 'include',
       });

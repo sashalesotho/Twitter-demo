@@ -10,7 +10,7 @@ export const fetchUserFollowers = createAsyncThunk(
   'userFollowers/fetchUserFollowers',
   async (userId, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${API_URL}/api/profile/${userId}/followers`, {
+      const res = await fetch(`${API_URL}/profile/${userId}/followers`, {
         credentials: 'include',
       });
       const data = await res.json().catch(() => ({}));

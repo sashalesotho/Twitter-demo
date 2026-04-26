@@ -14,7 +14,7 @@ export const fetchPopularHashtags = createAsyncThunk(
 export const fetchPostsByHashtag = createAsyncThunk(
   'hashtags/fetchPostsByTag',
   async (tag) => {
-    const res = await fetch(`https://twitter-demo-backend.onrender.com/hashtag/${tag}`, {
+    const res = await fetch(`${API_URL}/hashtag/${tag}`, {
       credentials: 'include',
     });
     const posts = await res.json();
