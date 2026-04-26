@@ -30,7 +30,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <Route path="password" element={<PasswordSettingsPage />} />
             <Route path="email" element={<EmailSettingsPage />} />
           </Route>
-          <Route path="/profile/me" element={<ProfilePage />}/>
+          <Route path="/profile" element={<ProfilePage />}/>
           <Route path="/profile/:id" element={<ProfilePage />}/>
           <Route path="/following" element={<FollowingPage />}/>
           <Route path="/followers" element={<FollowersPage />}/>
