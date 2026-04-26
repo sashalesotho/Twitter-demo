@@ -30,7 +30,7 @@ const MobileFooter = () => {
                     {avatarUrl ? (
           <img className={styles.avatar} src={avatarUrl} alt="аватар" />
         ) : (
-          <img className={styles.avatar} src="/public/images/anonavatar.svg" alt="аватар" />
+          <img className={styles.avatar} src="/images/anonavatar.svg" alt="аватар" />
         )}</li>
                 </ul>
             </nav>

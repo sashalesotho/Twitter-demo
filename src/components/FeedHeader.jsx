@@ -35,7 +35,7 @@ const FeedHeader = () => {
             {avatarUrl ? (
           <img src={avatarUrl} alt="аватар" />
         ) : (
-          <img src="/public/images/anonavatar.svg" alt="аватар" />
+          <img src="/images/anonavatar.svg" alt="аватар" />
         )}
             </div>
 

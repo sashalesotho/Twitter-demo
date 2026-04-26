@@ -24,7 +24,7 @@ const Message = ({ post }) => {
 return (
     <li className={styles.post} id={id}>
     <div className={styles['post__avatar']}>
-      <img src={avatar_url || "/public/images/anonavatar.svg"} alt="аватар" />
+      <img src={avatar_url || "/images/anonavatar.svg"} alt="аватар" />
     </div>
     <div className={styles["post__body"]}>
       <div className={styles["post__header"]}>
