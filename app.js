@@ -795,7 +795,7 @@ app.get('/popular-users', async (req, res) => {
         u.avatar_url,
         COUNT(s.follower_id)::int AS followers_count
       FROM users u
-      LEFT JOIN  s ON u.id = s.user_id
+      LEFT JOIN subscriptions s ON u.id = s.user_id
       GROUP BY 
         u.id,
         u.username,
