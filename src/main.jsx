@@ -16,7 +16,7 @@ import PasswordSettingsPage from './components/PasswordSettingsPage.jsx'
 import EmailSettingsPage from './components/EmailSettingsPage.jsx'
 import ProfileSettingsMenu from './components/ProfileSettingsMenu.jsx'
 import HashtagPage from './components/HashtagPage.jsx'
-
+console.log('APP START');
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
