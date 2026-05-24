@@ -4,7 +4,6 @@ import { API_URL } from '../src/config';
 export const fetchOtherUser = createAsyncThunk(
   'otherUser/fetchOtherUser',
   async (userId, { rejectWithValue }) => {
-    console.log('URL:', `/api/profile/${userId}`);
 
     try {
       const res = await fetch(`${API_URL}/api/profile/${userId}`, {

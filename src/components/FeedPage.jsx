@@ -13,7 +13,6 @@ import MessagesList from "./MessagesList";
 
 
 const Feed = () => {
-    console.log('FEED MOUNTED');
     const [messageModalActive, setMessageModalActive] = useState(false);
     return (
         <>

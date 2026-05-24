@@ -16,10 +16,6 @@ useEffect(() => {
 dispatch(fetchPostsByHashtag(tag));
 }, [dispatch, tag]);
 
-console.log("BYTAG:", byTag);
-console.log("POSTS:", posts);
-console.log("IS ARRAY:", Array.isArray(posts));
-
 return (
 <div className="p-4">
 <h2 className="text-xl font-bold mb-4">#{tag}</h2>
