@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import styles from '../styles/User.module.css';
 
-const User = () => {
+const User = ({profile}) => {
   const avatarUrl = useSelector(state => state.user.profile?.avatar_url);
 
     return (
@@ -15,8 +15,8 @@ const User = () => {
         )}
       </div>
       <div className={styles.userInfo}>
-        <h3 className={styles.userName}>Александр</h3>
-        <p className={styles.userHandle}>@burtovoy</p>
+        <h3 className={styles.userName}>{profile.username}</h3>
+        <p className={styles.userHandle}>{profile.nickname}</p>
             </div>
       
         <div className={styles.stats}>
