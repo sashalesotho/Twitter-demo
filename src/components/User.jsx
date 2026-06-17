@@ -16,8 +16,8 @@ const User = () => {
         )}
       </div>
       <div className={styles.userInfo}>
-        <h3 className={styles.userName}>{profile.username}</h3>
-        <p className={styles.userHandle}>{profile.nickname}</p>
+        <h3 className={styles.userName}>{profile.username || 'username'}</h3>
+        <p className={styles.userHandle}>{profile.nickname || 'nickname'}</p>
             </div>
       
         <div className={styles.stats}>
