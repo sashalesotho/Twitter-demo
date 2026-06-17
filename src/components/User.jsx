@@ -3,6 +3,7 @@ import styles from '../styles/User.module.css';
 
 const User = ({profile}) => {
   const avatarUrl = useSelector(state => state.user.profile?.avatar_url);
+  const profile = useSelector((state) => state.user.profile);
 
     return (
         <div className={styles.userContainer}>
