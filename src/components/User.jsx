@@ -5,6 +5,15 @@ const User = () => {
   const avatarUrl = useSelector(state => state.user.profile?.avatar_url);
   const profile = useSelector((state) => state.user.profile);
 
+  if (loading) {
+    return <div className={styles.userContainer}>Загрузка профиля...</div>;
+  }
+
+  // Проверка на наличие профиля
+  if (!profile) {
+    return <div className={styles.userContainer}>Профиль не найден</div>;
+  }
+
     return (
         <div className={styles.userContainer}>
             <div className={styles.top}>
@@ -16,8 +25,8 @@ const User = () => {
         )}
       </div>
       <div className={styles.userInfo}>
-        <h3 className={styles.userName}>{profile.username || 'username'}</h3>
-        <p className={styles.userHandle}>{profile.nickname || 'nickname'}</p>
+        <h3 className={styles.userName}>{profile.username || 'user'}</h3>
+        <p className={styles.userHandle}>{profile.nickname || ''}</p>
             </div>
       
         <div className={styles.stats}>
