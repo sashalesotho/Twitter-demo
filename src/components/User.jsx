@@ -4,7 +4,8 @@ import styles from '../styles/User.module.css';
 const User = () => {
   const avatarUrl = useSelector(state => state.user.profile?.avatar_url);
   const profile = useSelector((state) => state.user.profile);
-
+  const loading = useSelector((state) => state.user.loading);
+  
   if (loading) {
     return <div className={styles.userContainer}>Загрузка профиля...</div>;
   }
