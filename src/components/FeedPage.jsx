@@ -10,10 +10,12 @@ import MobileHeader from "./MobileHeader";
 import styles from "../styles/FeedPage.module.css";
 import MobileFooter from "./MobileFooter";
 import MessagesList from "./MessagesList";
+import { useSelector } from "react-redux";
 
 
 const Feed = () => {
     const [messageModalActive, setMessageModalActive] = useState(false);
+    const currentUser = useSelector((state) => state.user.profile);
     return (
         <>
         <div className={styles["mobile-container"]}>
@@ -35,7 +37,7 @@ const Feed = () => {
                 <FeedMessagesList />
             </div>
             <div className={styles["desktop-right"]}>
-                <User/>
+                <User profile={currentUser} />
                 <Topics/>
                 <Blogers/>
             </div>
