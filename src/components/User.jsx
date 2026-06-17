@@ -1,11 +1,18 @@
+import { useSelector } from 'react-redux';
 import styles from '../styles/User.module.css';
 
 const User = () => {
+  const avatarUrl = useSelector(state => state.user.profile?.avatar_url);
+
     return (
         <div className={styles.userContainer}>
             <div className={styles.top}>
             <div className={styles.avatarWrapper}>
-        <img className={styles.avatar} src="../../images/alexander.png" alt="User Avatar" />
+            {avatarUrl ? (
+          <img className={styles.avatar} src={avatarUrl} alt="аватар" />
+        ) : (
+          <img className={styles.avatar} src="/images/anonavatar.svg" alt="аватар" />
+        )}
       </div>
       <div className={styles.userInfo}>
         <h3 className={styles.userName}>Александр</h3>
